@@ -1,0 +1,45 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Ionity Global (Pty) Ltd",
+      "alternateName": [
+        "Ionity (Pty) Ltd",
+        "Antwerp Designs"
+      ],
+      "url": "https://www.ionity.world/",
+      "logo": "https://www.ionity.world/assets/logo/ionity-logo.png",
+      "email": "ai@ionity.today",
+      "telephone": "+27 6464999877",
+      "founder": {
+        "@type": "Person",
+        "name": "Johan Wilhelm van Antwerp"
+      },
+      "sameAs": [
+        "https://www.ionity.world/",
+        "https://www.ionity.today/"
+      ]
+    },
+    {
+      "@type": "Person",
+      "name": "Johan Wilhelm van Antwerp",
+      "alternateName": "AntwerpDesignsIonity",
+      "identifier": "9003135105083",
+      "email": "johan@antwerpdesigns.com",
+      "url": "https://www.ionity.world/",
+      "sameAs": [
+        "https://orcid.org/0009-0005-7181-0347"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "name": "Ionity World",
+      "url": "https://www.ionity.world/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Ionity Global (Pty) Ltd"
+      }
+    }
+  ]
+}
