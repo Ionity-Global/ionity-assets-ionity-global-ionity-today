@@ -129,7 +129,7 @@ Live licence page: [ionity.today/license.html](https://www.ionity.today/license.
 | 📧 Email | [ai@ionity.today](mailto:ai@ionity.today) |
 | 📞 Phone | +27 646 999 877 |
 | 🔬 ORCID | [0009-0005-7181-0347](https://orcid.org/0009-0005-7181-0347) |
-| 📖 Wiki | [Repository Wiki](../../wiki) |
+| 📖 Wiki | [Repository Wiki](https://github.com/Ionity-Global/ionity-assets-ionity-global-ionity-today/wiki) |
 
 ---
 
