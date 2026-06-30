@@ -1,0 +1,8 @@
+{
+  "appId": "today.ionity.findspidy",
+  "appName": "Find Spidy",
+  "webDir": "dist",
+  "plugins": {
+    "CapacitorHttp": { "enabled": true }
+  }
+}
