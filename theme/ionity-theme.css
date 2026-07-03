@@ -1,0 +1,176 @@
+/**
+ * IONITY THEME — Full composited stylesheet
+ * Import this single file to get the entire Ionity design system.
+ *
+ *   @import 'ionity-theme.css';
+ *
+ * Ionity Global (Pty) Ltd · ionity.today · POL-986-AED
+ */
+
+@import './variables.css';
+
+/* ── Reset ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+body {
+  margin: 0;
+  font-family: var(--ionity-font-sans);
+  font-size: var(--ionity-text-base);
+  line-height: var(--ionity-leading-normal);
+  color: var(--ionity-text);
+  background: var(--ionity-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img, video, svg { max-width: 100%; display: block; }
+a { color: var(--ionity-teal); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Typography ──────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 var(--ionity-space-4);
+  font-weight: var(--ionity-weight-bold);
+  line-height: var(--ionity-leading-tight);
+}
+h1 { font-size: var(--ionity-text-2xl); }
+h2 { font-size: var(--ionity-text-xl); }
+h3 { font-size: var(--ionity-text-lg); }
+p  { margin: 0 0 var(--ionity-space-4); }
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ionity-space-2);
+  min-height: 48px;
+  min-width: 48px;
+  padding: var(--ionity-space-3) var(--ionity-space-5);
+  font-family: var(--ionity-font-sans);
+  font-size: var(--ionity-text-base);
+  font-weight: var(--ionity-weight-semibold);
+  border: 0;
+  border-radius: var(--ionity-radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: all var(--ionity-duration-base) var(--ionity-ease-standard);
+  background: var(--ionity-surface-2);
+  color: var(--ionity-text);
+}
+.btn:active    { transform: scale(0.97); }
+.btn:disabled  { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+.btn-primary   { background: var(--ionity-purple); color: #fff; }
+.btn-secondary { background: var(--ionity-teal); color: #000; }
+.btn-ghost     { background: transparent; border: 1px solid var(--ionity-border); }
+.btn-link      { background: none; color: var(--ionity-teal); padding-left: 0; padding-right: 0; min-height: auto; }
+
+.btn-primary:hover  { background: var(--ionity-purple-light); }
+.btn-secondary:hover { background: var(--ionity-teal-light); }
+
+/* ── Inputs ──────────────────────────────────────────────────── */
+input, textarea, select {
+  font-family: var(--ionity-font-sans);
+  font-size: var(--ionity-text-md);
+  padding: var(--ionity-space-3) var(--ionity-space-4);
+  border-radius: var(--ionity-radius-md);
+  border: 1px solid var(--ionity-border);
+  background: var(--ionity-surface-3);
+  color: var(--ionity-text);
+  touch-action: manipulation;
+  transition: border-color var(--ionity-duration-fast) var(--ionity-ease-standard),
+              outline var(--ionity-duration-fast) var(--ionity-ease-standard);
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--ionity-purple);
+  border-color: transparent;
+}
+input::placeholder { color: var(--ionity-text-dim); }
+
+/* ── Cards ───────────────────────────────────────────────────── */
+.card {
+  background: var(--ionity-surface-1);
+  border: 1px solid var(--ionity-border);
+  border-radius: var(--ionity-radius-lg);
+  padding: var(--ionity-space-5);
+}
+.card-hover {
+  transition: box-shadow var(--ionity-duration-base) var(--ionity-ease-standard),
+              transform var(--ionity-duration-base) var(--ionity-ease-standard);
+}
+.card-hover:hover {
+  box-shadow: var(--ionity-shadow-glow-purple);
+  transform: translateY(-2px);
+}
+
+/* ── Badges / Tags ───────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  font-size: var(--ionity-text-xs);
+  font-weight: var(--ionity-weight-semibold);
+  padding: 2px var(--ionity-space-2);
+  border-radius: var(--ionity-radius-sm);
+  background: var(--ionity-surface-2);
+  color: var(--ionity-teal);
+  letter-spacing: 0.04em;
+}
+.badge-purple { background: rgba(87,70,227,0.18); color: var(--ionity-purple-light); }
+.badge-teal   { background: rgba(0,212,184,0.12); color: var(--ionity-teal); }
+.badge-ok     { background: var(--ionity-ok-bg);   color: #4caf85; border: 1px solid var(--ionity-ok); }
+.badge-warn   { background: var(--ionity-warn-bg); color: #e0a030; border: 1px solid var(--ionity-warn); }
+
+/* ── Logo mark ───────────────────────────────────────────────── */
+.ionity-logo-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--ionity-radius-lg);
+  background: var(--ionity-gradient-brand);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Dividers ────────────────────────────────────────────────── */
+hr {
+  border: 0;
+  border-top: 1px solid var(--ionity-border);
+  margin: var(--ionity-space-6) 0;
+}
+
+/* ── Tables ──────────────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; font-size: var(--ionity-text-base); }
+th, td {
+  text-align: left;
+  padding: var(--ionity-space-2) var(--ionity-space-2);
+  border-bottom: 1px solid var(--ionity-border);
+  vertical-align: top;
+}
+th { color: var(--ionity-text-muted); font-weight: var(--ionity-weight-medium); }
+
+/* ── Utility: layout ─────────────────────────────────────────── */
+.flex       { display: flex; }
+.flex-col   { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.gap-2      { gap: var(--ionity-space-2); }
+.gap-4      { gap: var(--ionity-space-4); }
+.w-full     { width: 100%; }
+.text-muted { color: var(--ionity-text-muted); }
+.text-sm    { font-size: var(--ionity-text-sm); }
+
+/* ── Animation ───────────────────────────────────────────────── */
+@keyframes ionity-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: ionity-fade-up var(--ionity-duration-base) var(--ionity-ease-standard);
+}

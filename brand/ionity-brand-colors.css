@@ -1,0 +1,49 @@
+/**
+ * IONITY BRAND COLOR REFERENCE
+ * Human-readable palette catalogue + utility classes.
+ *
+ * Ionity Global (Pty) Ltd · ionity.today · POL-986-AED
+ */
+
+@import '../theme/variables.css';
+
+/* ── Utility: background fills ────────────────────────────────── */
+.bg-ionity-purple  { background-color: var(--ionity-purple); }
+.bg-ionity-teal    { background-color: var(--ionity-teal); }
+.bg-ionity-cyan    { background-color: var(--ionity-cyan); }
+.bg-ionity-dark    { background-color: var(--ionity-bg); }
+.bg-ionity-surface { background-color: var(--ionity-surface-1); }
+
+/* ── Utility: text fills ──────────────────────────────────────── */
+.text-ionity-purple  { color: var(--ionity-purple); }
+.text-ionity-teal    { color: var(--ionity-teal); }
+.text-ionity-cyan    { color: var(--ionity-cyan); }
+.text-ionity-muted   { color: var(--ionity-text-muted); }
+
+/* ── Utility: brand gradient fills ───────────────────────────── */
+.bg-ionity-gradient {
+  background: var(--ionity-gradient-brand);
+}
+.text-ionity-gradient {
+  background: var(--ionity-gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Utility: borders ─────────────────────────────────────────── */
+.border-ionity         { border: 1px solid var(--ionity-border); }
+.border-ionity-purple  { border: 1px solid var(--ionity-purple); }
+.border-ionity-teal    { border: 1px solid var(--ionity-teal); }
+
+/*
+ * IONITY BRAND PALETTE — Quick Reference
+ * ──────────────────────────────────────
+ *  Purple (primary)   #5746e3   rgb(87, 70, 227)
+ *  Teal   (secondary) #00d4b8   rgb(0, 212, 184)
+ *  Cyan   (web)       #00d2ff   rgb(0, 210, 255)
+ *  Dark BG            #0b0d12   rgb(11, 13, 18)
+ *  Surface            #151922   rgb(21, 25, 34)
+ *  Text               #e7ebf2   rgb(231, 235, 242)
+ *  Text muted         #8b93a4   rgb(139, 147, 164)
+ */

@@ -1,0 +1,117 @@
+/**
+ * IONITY DESIGN TOKENS
+ * Core CSS custom properties for all Ionity products.
+ * Source of truth for colors, typography, spacing, and motion.
+ *
+ * Ionity Global (Pty) Ltd · ionity.today · POL-986-AED
+ */
+
+:root {
+
+  /* ── COLOUR PALETTE ─────────────────────────────────────────── */
+
+  /* Brand primaries */
+  --ionity-purple:       #5746e3;   /* primary accent */
+  --ionity-purple-light: #7b6ef0;
+  --ionity-purple-dark:  #3d30c4;
+  --ionity-teal:         #00d4b8;   /* secondary accent */
+  --ionity-teal-light:   #33e0c9;
+  --ionity-teal-dark:    #00a892;
+  --ionity-cyan:         #00d2ff;   /* web/marketing accent */
+  --ionity-cyan-dark:    #0099cc;
+
+  /* Dark theme surfaces (primary UI) */
+  --ionity-bg:           #0b0d12;   /* page background */
+  --ionity-surface-1:    #151922;   /* card / elevated surface */
+  --ionity-surface-2:    #1a2030;   /* double-elevated */
+  --ionity-surface-3:    #0e1117;   /* input / inset */
+  --ionity-border:       #232936;   /* default border */
+  --ionity-border-light: #2e3848;
+
+  /* Text */
+  --ionity-text:         #e7ebf2;   /* primary text */
+  --ionity-text-muted:   #8b93a4;   /* secondary / label text */
+  --ionity-text-dim:     #5a6275;   /* placeholder / disabled */
+
+  /* Semantic colours */
+  --ionity-ok:           #1f6f4a;
+  --ionity-ok-bg:        rgba(31, 111, 74, 0.18);
+  --ionity-warn:         #8a5a00;
+  --ionity-warn-bg:      rgba(138, 90, 0, 0.18);
+  --ionity-danger:       #5a2126;
+  --ionity-danger-bg:    #2a1416;
+  --ionity-danger-text:  #ffb4b4;
+
+  /* ── GRADIENTS ──────────────────────────────────────────────── */
+
+  --ionity-gradient-brand:    linear-gradient(135deg, var(--ionity-purple), var(--ionity-teal));
+  --ionity-gradient-web:      linear-gradient(135deg, var(--ionity-cyan), var(--ionity-cyan-dark));
+  --ionity-gradient-overlay:  linear-gradient(180deg, rgba(11,13,18,0) 0%, rgba(11,13,18,0.95) 100%);
+
+  /* ── TYPOGRAPHY ─────────────────────────────────────────────── */
+
+  --ionity-font-sans:   'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ionity-font-mono:   'Roboto Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  --ionity-text-xs:     11px;
+  --ionity-text-sm:     13px;
+  --ionity-text-base:   14px;
+  --ionity-text-md:     16px;
+  --ionity-text-lg:     20px;
+  --ionity-text-xl:     24px;
+  --ionity-text-2xl:    32px;
+
+  --ionity-weight-normal:   400;
+  --ionity-weight-medium:   500;
+  --ionity-weight-semibold: 600;
+  --ionity-weight-bold:     700;
+
+  --ionity-leading-tight:   1.25;
+  --ionity-leading-normal:  1.5;
+  --ionity-leading-relaxed: 1.75;
+
+  /* ── SPACING ────────────────────────────────────────────────── */
+
+  --ionity-space-1:   4px;
+  --ionity-space-2:   8px;
+  --ionity-space-3:   12px;
+  --ionity-space-4:   16px;
+  --ionity-space-5:   20px;
+  --ionity-space-6:   24px;
+  --ionity-space-8:   32px;
+  --ionity-space-10:  40px;
+  --ionity-space-12:  48px;
+
+  /* ── SHAPE ──────────────────────────────────────────────────── */
+
+  --ionity-radius-sm:   6px;
+  --ionity-radius-md:   10px;
+  --ionity-radius-lg:   14px;
+  --ionity-radius-xl:   20px;
+  --ionity-radius-full: 9999px;
+
+  /* ── SHADOWS ────────────────────────────────────────────────── */
+
+  --ionity-shadow-sm:   0 1px 3px rgba(0,0,0,0.4);
+  --ionity-shadow-md:   0 4px 12px rgba(0,0,0,0.5);
+  --ionity-shadow-glow-purple: 0 0 24px rgba(87, 70, 227, 0.35);
+  --ionity-shadow-glow-teal:   0 0 24px rgba(0, 212, 184, 0.25);
+  --ionity-shadow-glow-cyan:   0 4px 15px rgba(0, 210, 255, 0.3);
+
+  /* ── MOTION ─────────────────────────────────────────────────── */
+
+  --ionity-duration-fast:   150ms;
+  --ionity-duration-base:   300ms;
+  --ionity-duration-slow:   500ms;
+  --ionity-ease-standard:   cubic-bezier(0.4, 0, 0.2, 1);
+  --ionity-ease-spring:     cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* ── Z-INDEX ─────────────────────────────────────────────────── */
+
+  --ionity-z-base:    0;
+  --ionity-z-raised:  10;
+  --ionity-z-overlay: 100;
+  --ionity-z-modal:   1000;
+  --ionity-z-toast:   9999;
+  --ionity-z-top:     99999;
+}
