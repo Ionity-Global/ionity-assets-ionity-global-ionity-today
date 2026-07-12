@@ -1,0 +1,20 @@
+# --------------------------------------------------------------------------------------
+# AEDI - IONITY GLOBAL - OFFICIAL LINKS & IDENTITY ASSETS
+# Author: Johan Wilhelm van Antwerp | Ionity (Pty) Ltd | AEDI
+# Document ID: DOC-2026-07-001 | Version: 1.1 | Updated: 2026-07-12 SAST
+# Governance: Policy 986 AED | License: AED 900 | CC BY-NC-SA 4.0 where stated
+# (c) 2018-2026 Antwerp Designs | Ionity (Pty) Ltd - All Rights Reserved - TM2
+# Web: https://www.ionity.today | https://www.ionity.world | Ref: https://www.ionity.co.za
+# Classification: PUBLIC | Building Tomorrow, Today. | Anything is Possible with God.
+# --------------------------------------------------------------------------------------
+# SHA256
+40e9c082abbf0c8c8858e78f4016ddc72244f078fc0ec3ea64d1666ba411dd13  ionity-links.yml
+0392ed05cb3e04184bf03a9ac2bc948c205a394bfc3e7b5940294aebac8b5bdc  ionity-links.json
+f92879cfdeaf5d4922559f62f66a76db701ea9676aa9b620bb168fa85082e07b  ionity-links.txt
+752cd6b28a0dedf13c8ab269f6fb2d0f7c113a73ef16066c37e3ba870edee838  ionity-links.b64.txt
+
+# MD5
+c2043de5e49c62aad15c471e7fd41878  ionity-links.yml
+953f4e9c19e99dc0c5afb288b052dc5d  ionity-links.json
+7f3abebae7eb7ab2136dcca39a83d3bf  ionity-links.txt
+3ac443848e34baa38099a6c14b6dce4a  ionity-links.b64.txt
