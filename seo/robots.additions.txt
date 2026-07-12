@@ -1,0 +1,55 @@
+# ADDITIVE FILE - Policy 986 AED - does NOT overrule existing site files.
+# Author: Johan Wilhelm van Antwerp | Ionity (Pty) Ltd | AEDI | Updated: 2026-07-12 SAST
+# (c) 2018-2026 Antwerp Designs | Ionity (Pty) Ltd - All Rights Reserved - TM2
+#
+# APPEND the block below to the END of the existing https://www.ionity.today/robots.txt
+# Do not remove or reorder existing rules. These add newer AI/search crawler tokens
+# missing from the current file (which already welcomes GPTBot, CCBot, anthropic-ai,
+# Claude-Web, Perplexity, cohere-ai, Google-Extended, etc.).
+
+# --- AEDI additions 2026-07-12: newer AI agents, explicitly welcomed (intentional) ---
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+# Supplementary sitemap (additive - multiple Sitemap lines are permitted)
+Sitemap: https://www.ionity.today/sitemap-ionity-2026.xml
+# --- end AEDI additions ---
