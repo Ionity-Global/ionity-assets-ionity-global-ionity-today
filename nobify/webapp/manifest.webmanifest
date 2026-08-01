@@ -1,0 +1,12 @@
+{
+  "name": "Nobify — Human Presence Detection",
+  "short_name": "Nobify",
+  "description": "Real-time dual-sensor (24GHz mmWave + WiFi CSI) human presence dashboard for ESP32-S3.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "icons": [
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

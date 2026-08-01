@@ -1,0 +1,93 @@
+name: Nobify Release
+
+# Builds the desktop companion installers + the ESP32-S3 firmware image and
+# publishes them (with an OTA manifest) to a GitHub Release.
+#
+# Trigger by pushing a tag like `nobify-v1.1.0`, or run manually with a version.
+
+on:
+  push:
+    tags: ['nobify-v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version, e.g. 1.1.0'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            V="${{ github.event.inputs.version }}"
+          else
+            V="${GITHUB_REF_NAME#nobify-v}"
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Building Nobify v$V"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            ~/.cache/pip
+          key: pio-${{ runner.os }}-${{ hashFiles('nobify/firmware/platformio.ini') }}
+
+      # ---- Firmware (.bin) + OTA manifest ----
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+      - name: Server deps + firmware header
+        working-directory: nobify/server
+        run: npm install --no-audit --no-fund && npm run gen:firmware
+      - name: Compile firmware
+        working-directory: nobify/firmware
+        run: pio run
+      - name: Stage firmware + manifest
+        env:
+          VER: ${{ steps.ver.outputs.version }}
+        run: |
+          mkdir -p dist
+          BIN=$(ls nobify/firmware/.pio/build/*/firmware.bin | head -n1)
+          cp "$BIN" "dist/nobify-fw-$VER.bin"
+          node -e "require('fs').writeFileSync('dist/manifest.json', JSON.stringify({version:process.env.VER, bin:'nobify-fw-'+process.env.VER+'.bin', notes:'Nobify firmware '+process.env.VER, mandatory:false, ts:Date.now()}, null, 2))"
+
+      # ---- Desktop companion binaries (Windows/macOS/Linux) ----
+      - name: Companion deps
+        working-directory: nobify/companion
+        run: npm install --no-audit --no-fund
+      - name: Build companion binaries
+        working-directory: nobify/companion
+        run: npm run build:bin
+      - name: Collect companion binaries
+        run: cp nobify/companion/dist/nobify-companion-* dist/ || true
+
+      - name: List artifacts
+        run: ls -la dist
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('nobify-v{0}', steps.ver.outputs.version) }}
+          name: Nobify v${{ steps.ver.outputs.version }}
+          generate_release_notes: true
+          files: |
+            dist/nobify-companion-win.exe
+            dist/nobify-companion-macos
+            dist/nobify-companion-linux
+            dist/nobify-fw-${{ steps.ver.outputs.version }}.bin
+            dist/manifest.json

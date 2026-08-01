@@ -1,0 +1,13 @@
+# Nobify Companion configuration (optional).
+# Copy to companion.yaml. CLI flags and env vars override these values.
+# Requires the optional "yaml" dependency; otherwise use --flags / env vars.
+
+server: "http://localhost:8787"   # Nobify backend base URL
+dashboard_url: ""                 # defaults to `server`
+poll_ms: 3000                     # polling interval when WebSocket is unavailable
+notify_gap_ms: 8000               # min gap between notifications (debounce)
+only_source: "any"                # any | mmwave | wifi | fusion
+default_snooze_min: 15            # snooze length for the [s] key
+snooze_presets: [5, 15, 60]       # tray menu presets
+sound: true                       # play a sound with notifications
+tray: true                        # show a system-tray icon (needs "systray2")

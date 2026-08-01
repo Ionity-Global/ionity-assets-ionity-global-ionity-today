@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nobify — Human Presence Detection</title>
+  <meta name="description" content="Real-time dual-sensor (24GHz mmWave + WiFi CSI) human presence dashboard for ESP32-S3." />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-connection="disconnected">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1>Nobify</h1>
+        <p class="tagline">Human presence · mmWave&nbsp;+&nbsp;WiFi&nbsp;CSI</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="conn-pill" class="pill pill-conn" title="Connection status">
+        <span class="dot"></span><span id="conn-text">Connecting…</span>
+      </span>
+      <button id="notif-btn" class="btn btn-ghost" title="Enable desktop notifications">🔔 Notify</button>
+      <a href="install.html" class="btn btn-ghost" title="Install apps & firmware">⤓ Install</a>
+      <button id="settings-btn" class="btn btn-ghost" title="Settings">⚙</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO: live presence -->
+    <section class="hero card">
+      <div class="orb-wrap">
+        <div id="orb" class="orb orb-clear">
+          <div class="orb-core"></div>
+          <div class="orb-ring"></div>
+          <div class="orb-label">
+            <span id="orb-state">CLEAR</span>
+            <small id="orb-sub">no one detected</small>
+          </div>
+        </div>
+        <div id="daynight" class="daynight" title="Ambient light (0–50 lux)"><span id="daynight-icon"></span><span id="daynight-lux"></span></div>
+      </div>
+      <div class="hero-meta">
+        <div class="leds">
+          <div class="led led-wifi" id="led-wifi" title="BLUE = WiFi CSI detected a person">
+            <span class="led-bulb"></span>
+            <div class="led-text"><strong>WiFi CSI</strong><small>blue LED</small></div>
+          </div>
+          <div class="led led-mmwave" id="led-mmwave" title="ORANGE = 24GHz mmWave detected a person">
+            <span class="led-bulb"></span>
+            <div class="led-text"><strong>mmWave 24GHz</strong><small>orange LED</small></div>
+          </div>
+        </div>
+        <dl class="readout">
+          <div><dt>Distance</dt><dd id="r-distance">—</dd></div>
+          <div><dt>Movement</dt><dd id="r-movement">—</dd></div>
+          <div><dt>Ambient light</dt><dd id="r-light">—</dd></div>
+          <div><dt>Last seen</dt><dd id="r-lastseen">—</dd></div>
+          <div><dt>Source</dt><dd id="r-source">—</dd></div>
+          <div><dt>Signal</dt><dd id="r-rssi">—</dd></div>
+        </dl>
+        <div class="snooze">
+          <span class="snooze-label">Snooze alerts</span>
+          <div class="snooze-btns" id="snooze-btns"></div>
+          <span id="snooze-status" class="snooze-status"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats-grid">
+      <div class="card stat"><span class="stat-num" id="s-detections">0</span><span class="stat-lbl">Detections (24h)</span></div>
+      <div class="card stat"><span class="stat-num" id="s-sessions">0</span><span class="stat-lbl">Occupancy sessions</span></div>
+      <div class="card stat"><span class="stat-num" id="s-peak">—</span><span class="stat-lbl">Busiest hour</span></div>
+      <div class="card stat"><span class="stat-num" id="s-dist">—</span><span class="stat-lbl">Avg distance</span></div>
+    </section>
+
+    <div class="columns">
+      <!-- LEFT -->
+      <div class="col">
+        <section class="card">
+          <div class="card-head"><h2>Activity by hour</h2><span class="muted" id="chart-window">last 24h</span></div>
+          <canvas id="hour-chart" height="150"></canvas>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2>Live feed</h2><button id="clear-feed" class="btn btn-ghost btn-sm">Clear</button></div>
+          <ul id="feed" class="feed"><li class="feed-empty">Waiting for detections…</li></ul>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2>Devices</h2></div>
+          <ul id="devices" class="devices"><li class="muted">No devices yet.</li></ul>
+        </section>
+      </div>
+
+      <!-- RIGHT: AI -->
+      <div class="col">
+        <section class="card ai-card">
+          <div class="card-head"><h2>✦ Nobify AI</h2><button id="ai-refresh" class="btn btn-ghost btn-sm">Refresh</button></div>
+          <p id="ai-headline" class="ai-headline">Analyzing…</p>
+          <p id="ai-summary" class="ai-summary muted">Loading insights…</p>
+          <div id="ai-anomaly" class="ai-anomaly" hidden></div>
+          <ul id="ai-recs" class="ai-recs"></ul>
+
+          <div class="ai-chat">
+            <div id="chat-log" class="chat-log">
+              <div class="bubble bubble-ai">Ask me about presence, distance, busiest hour, sensors, anomalies…</div>
+            </div>
+            <form id="chat-form" class="chat-form">
+              <input id="chat-input" type="text" placeholder="e.g. is anyone here?" autocomplete="off" />
+              <button class="btn btn-primary" type="submit">Ask</button>
+            </form>
+            <div class="chat-suggest" id="chat-suggest"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <span>Nobify · ESP32-S3 dual-sensor presence · <span id="foot-server">—</span></span>
+  </footer>
+
+  <!-- Settings dialog -->
+  <dialog id="settings-dialog" class="dialog">
+    <form method="dialog" class="dialog-body">
+      <h2>Settings</h2>
+      <label>Server URL
+        <input id="cfg-url" type="text" placeholder="http://localhost:8787" />
+      </label>
+      <p class="muted small">Point this at your hosted Nobify backend (leave blank to use this page's origin).</p>
+      <label class="row"><input id="cfg-sound" type="checkbox" /> Play a sound on detection</label>
+      <label class="row"><input id="cfg-notify" type="checkbox" /> Desktop notification on detection</label>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn btn-ghost">Close</button>
+        <button id="cfg-save" value="save" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+# ============================================================================
+#  Nobify — ESP32-S3 device configuration (single source of truth)
+#  Edit this file, then run:  cd ../server && npm run gen:firmware
+#  which regenerates firmware/include/nobify_config.h (no on-board YAML needed).
+# ============================================================================
+
+device:
+  id: esp32-s3-01            # unique id reported to the server
+  name: "Lobby Sensor"       # friendly name shown in the dashboard
+
+# Firmware identity + OTA (over-the-air) updates.
+firmware:
+  version: "1.0.0"           # reported to the server; used for OTA update checks
+ota:
+  enabled: true              # pull updates from the server's /api/firmware/manifest
+  check_interval_ms: 900000  # how often to poll for a new build (15 min). 0 = boot only
+  arduino_ota: true          # also allow local push OTA (pio run -t upload --upload-port <ip>)
+  arduino_ota_password: ""   # optional password protecting local ArduinoOTA
+
+wifi:
+  ssid: "YOUR_WIFI_SSID"
+  password: "YOUR_WIFI_PASSWORD"
+  hostname: "nobify-esp32s3"
+
+server:
+  # Base URL of the hosted Nobify backend (no trailing slash).
+  url: "http://192.168.1.10:8787"
+  ingest_path: "/api/ingest"
+  ingest_key: ""             # must match server.ingest_key if set
+  post_interval_ms: 1000     # min gap between uploads while present
+  heartbeat_ms: 15000        # keepalive upload when idle
+
+# 24GHz mmWave radar (human-only presence). UART-connected.
+mmwave:
+  uart_rx: 18                # ESP32-S3 GPIO wired to radar TX
+  uart_tx: 17                # ESP32-S3 GPIO wired to radar RX
+  baud: 256000
+  max_distance_cm: 600       # ignore targets beyond this range gate
+  min_distance_cm: 20        # ignore targets closer than this
+  # Interference filtering / clutter suppression: sample the empty room on
+  # boot and subtract that background so airflow, pets and swaying plants are
+  # ignored. Micro-motion below the threshold is treated as clutter.
+  clutter_suppression: true
+  background_calibration_ms: 6000
+  micro_motion_threshold: 8  # energy units; below = clutter, discarded
+  # Movement: report target speed + direction (approaching/leaving/stationary).
+  movement:
+    enabled: true
+    approach_speed_cms: 2    # |speed| below this = stationary
+  # Environmental: ambient light 0..50 lux (built-in). Drives day/night.
+  ambient_light:
+    enabled: true
+    dark_lux_threshold: 5    # <= this reported as "dark"
+    # If your radar reports lux over UART, that value is used. Otherwise the
+    # firmware reads an LDR/photodiode on this ADC pin and maps it to 0..50 lux.
+    adc_gpio: 1
+
+# WiFi CSI (Channel State Information) presence heuristic on the ESP32 itself.
+wifi_csi:
+  enabled: true
+  variance_threshold: 12.0   # CSI amplitude variance that indicates motion
+  window: 32                 # samples averaged for the variance estimate
+
+# Status LEDs (mirror the dashboard indicator).
+leds:
+  # BLUE when WiFi CSI detects a person.
+  wifi:
+    gpio: 47
+    color: "#1e90ff"
+  # ORANGE when the 24GHz mmWave radar detects a person.
+  mmwave:
+    gpio: 48
+    color: "#ff8c00"
+  brightness: 160            # 0..255 (WS2812/NeoPixel) 
+  neopixel: true             # true = addressable RGB, false = plain GPIO LEDs
+
+# On-board TFT screen (optional; disable if your S3 has no screen).
+display:
+  enabled: true
+  type: st7789               # st7789 | ili9341 | none
+  width: 240
+  height: 320
+  rotation: 1

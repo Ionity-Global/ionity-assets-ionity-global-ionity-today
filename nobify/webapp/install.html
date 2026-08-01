@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Install · Nobify</title>
+  <meta name="description" content="Install the Nobify server, desktop companion, and ESP32-S3 firmware (with OTA)." />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .install-main { max-width: 1000px; margin: 0 auto; padding: 20px 18px 60px; }
+    .lede { color: var(--muted); font-size: 1.02rem; max-width: 70ch; }
+    .dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-top: 6px; }
+    .dl { display: flex; flex-direction: column; gap: 8px; }
+    .dl .os { font-weight: 650; display: flex; align-items: center; gap: 8px; }
+    .dl .os.current::after { content: "your OS"; font-size: .68rem; background: var(--accent); color:#04120d; padding:1px 7px; border-radius: 99px; font-weight:700; }
+    .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
+    .steps > li { position: relative; padding-left: 42px; }
+    .steps > li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: -2px;
+      width: 28px; height: 28px; border-radius: 50%; background: var(--card-2); border: 1px solid #2a3a5f;
+      display: grid; place-items: center; font-weight: 700; color: var(--accent); }
+    pre { background: #0a1120; border: 1px solid #22314f; border-radius: 10px; padding: 12px 14px; overflow-x: auto; position: relative; }
+    pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .86rem; line-height: 1.5; color: #cfe1ff; white-space: pre; }
+    .copy { position: absolute; top: 8px; right: 8px; }
+    h2 { margin-top: 4px; }
+    .tag { display:inline-block; font-size:.72rem; padding:2px 8px; border-radius:99px; border:1px solid #2a3a5f; color:var(--muted); }
+    .two { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 720px){ .two { grid-template-columns: 1fr; } }
+    a.link { color: var(--accent); }
+  </style>
+</head>
+<body data-connection="connected">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1>Nobify · Install</h1>
+        <p class="tagline">Server · Desktop companion · ESP32-S3 firmware &amp; OTA</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a href="index.html" class="btn btn-ghost">← Dashboard</a>
+      <a id="repo-link" href="#" class="btn btn-ghost" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </header>
+
+  <main class="install-main">
+    <p class="lede">
+      Nobify has three parts: a small <strong>server</strong> that collects detections,
+      a <strong>dashboard</strong> (this site), and a <strong>desktop companion</strong> that
+      shows tray notifications. The <strong>ESP32-S3</strong> sensor node uploads over WiFi and
+      updates itself over-the-air. Grab what you need below.
+    </p>
+
+    <!-- DESKTOP COMPANION DOWNLOADS -->
+    <section class="card" style="margin-top:18px">
+      <div class="card-head"><h2>1 · Desktop companion</h2><span class="tag">tray notifications + snooze</span></div>
+      <p class="muted">Double-click installers (no Node required). Pick your platform:</p>
+      <div class="dl-grid">
+        <div class="card dl" data-os="win">
+          <span class="os" id="os-win">🪟 Windows</span>
+          <a id="dl-win" class="btn btn-primary" href="#">Download .exe</a>
+        </div>
+        <div class="card dl" data-os="mac">
+          <span class="os" id="os-mac">🍎 macOS</span>
+          <a id="dl-mac" class="btn btn-primary" href="#">Download</a>
+        </div>
+        <div class="card dl" data-os="linux">
+          <span class="os" id="os-linux">🐧 Linux</span>
+          <a id="dl-linux" class="btn btn-primary" href="#">Download</a>
+        </div>
+      </div>
+      <p class="muted small" style="margin-top:12px">
+        Prefer Node? <span class="tag">zero-dep friendly</span>
+      </p>
+      <pre><button class="btn btn-ghost btn-sm copy">Copy</button><code>git clone https://github.com/<span class="repo-slug">OWNER/REPO</span>.git
+cd nobify/companion
+npm install            # optional — adds tray icon + rich toasts
+npm start -- --server http://localhost:8787</code></pre>
+    </section>
+
+    <!-- SERVER -->
+    <section class="card">
+      <div class="card-head"><h2>2 · Server (local or hosted)</h2><span class="tag">Node ≥ 22.5 · zero native deps</span></div>
+      <ol class="steps">
+        <li>
+          <strong>Install &amp; run</strong>
+          <pre><button class="btn btn-ghost btn-sm copy">Copy</button><code>cd nobify/server
+npm install
+npm run seed     # optional demo data
+npm start        # http://localhost:8787</code></pre>
+        </li>
+        <li>
+          <strong>Expose it</strong> (so the ESP32 and this dashboard can reach it). For a quick tunnel:
+          <pre><button class="btn btn-ghost btn-sm copy">Copy</button><code>npx localtunnel --port 8787
+# or: cloudflared tunnel --url http://localhost:8787</code></pre>
+        </li>
+        <li>
+          <strong>Point this dashboard at it:</strong> open the dashboard, click <strong>⚙ Settings</strong>,
+          and paste your server URL. (Hosted on GitHub Pages, this page can't guess your local server.)
+        </li>
+      </ol>
+    </section>
+
+    <!-- FIRMWARE + OTA -->
+    <section class="card">
+      <div class="card-head"><h2>3 · ESP32-S3 firmware + OTA</h2><span class="tag">PlatformIO</span></div>
+      <div class="two">
+        <div>
+          <h3>Flash the first time (USB)</h3>
+          <pre><button class="btn btn-ghost btn-sm copy">Copy</button><code># 1. edit nobify/firmware/nobify.config.yaml
+#    (wifi, server.url, pins)
+cd nobify/server && npm run gen:firmware
+cd ../firmware && pio run -t upload
+pio device monitor</code></pre>
+        </div>
+        <div>
+          <h3>Update later (over-the-air)</h3>
+          <p class="muted">Devices poll <code>/api/firmware/manifest</code> and self-update. Publish a build:</p>
+          <pre><button class="btn btn-ghost btn-sm copy">Copy</button><code># drop the built image + manifest on the server
+cp .pio/build/*/firmware.bin \
+   ../server/firmware/nobify-fw-1.1.0.bin
+# server serves it; ESP32 upgrades automatically</code></pre>
+          <p class="muted small">Local push OTA also works: <code>pio run -t upload --upload-port &lt;device-ip&gt;</code></p>
+        </div>
+      </div>
+    </section>
+
+    <p class="muted small">
+      Full docs: <a class="link repo-tree" href="#" target="_blank" rel="noopener">server</a> ·
+      <a class="link repo-tree-c" href="#" target="_blank" rel="noopener">companion</a> ·
+      <a class="link repo-tree-f" href="#" target="_blank" rel="noopener">firmware</a> ·
+      <a class="link repo-wiki" href="#" target="_blank" rel="noopener">Wiki</a>
+    </p>
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="config.js"></script>
+  <script src="install.js"></script>
+</body>
+</html>

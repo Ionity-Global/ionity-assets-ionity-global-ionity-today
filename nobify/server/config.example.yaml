@@ -1,0 +1,25 @@
+# Nobify server configuration (YAML).
+# Copy to config.yaml — values here override built-in defaults; environment
+# variables (PORT, INGEST_KEY, ...) still win over this file.
+server:
+  port: 8787
+  host: 0.0.0.0
+  # Shared secret devices must send in the `x-ingest-key` header. "" = open.
+  ingest_key: ""
+  # Serve the ../webapp dashboard from this server.
+  serve_webapp: true
+  # CORS origin for a separately-hosted dashboard (e.g. GitHub Pages).
+  cors_origin: "*"
+  # SQLite database path (node:sqlite, no native deps).
+  db_path: ""            # blank = ./data/nobify.db
+  # Over-the-air firmware updates: directory holding built *.bin + manifest.json.
+  ota_enabled: true
+  firmware_dir: ""       # blank = ./firmware (server/firmware)
+
+sensor:
+  # How long a person stays "present" after the last detection (ms).
+  presence_hold_ms: 8000
+  # A device is "offline" if not seen within this many ms.
+  device_timeout_ms: 30000
+  # Ambient light (0..50 lux). At/below this the area is reported as "dark".
+  dark_lux_threshold: 5

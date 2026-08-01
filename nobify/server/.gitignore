@@ -1,0 +1,9 @@
+node_modules/
+data/
+firmware/*.bin
+firmware/manifest.json
+*.db
+*.db-*
+.env
+npm-debug.log*
+.DS_Store
