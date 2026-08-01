@@ -1,0 +1,24 @@
+{
+  "name": "nobify-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nobify — hosted backend for ESP32-S3 dual-sensor human presence detection (mmWave + WiFi CSI). REST + WebSocket + built-in AI insights.",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "dev": "node --watch --disable-warning=ExperimentalWarning src/server.js",
+    "test": "node --disable-warning=ExperimentalWarning test/smoke.test.js",
+    "seed": "node --disable-warning=ExperimentalWarning scripts/seed.js",
+    "gen:firmware": "node --disable-warning=ExperimentalWarning scripts/gen-firmware-config.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0",
+    "yaml": "^2.5.1"
+  },
+  "author": "Ionity Global / Nobify",
+  "license": "MIT"
+}
