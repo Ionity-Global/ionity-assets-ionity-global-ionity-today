@@ -10,6 +10,12 @@ server:
   serve_webapp: true
   # CORS origin for a separately-hosted dashboard (e.g. GitHub Pages).
   cors_origin: "*"
+  # Reverse proxy: set true only when behind a trusted proxy (Caddy/nginx/CF)
+  # so x-forwarded-for / x-forwarded-proto are honoured. Leave false otherwise.
+  trust_proxy: false
+  # Externally reachable base URL (used to build OTA download links). Blank =
+  # derive from the request. Example: https://nobify.example.com
+  public_url: ""
   # SQLite database path (node:sqlite, no native deps).
   db_path: ""            # blank = ./data/nobify.db
   # Over-the-air firmware updates: directory holding built *.bin + manifest.json.
