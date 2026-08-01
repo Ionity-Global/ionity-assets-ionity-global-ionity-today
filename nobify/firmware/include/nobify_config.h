@@ -26,12 +26,14 @@
 #define NB_HEARTBEAT_MS        15000
 
 // ---- mmWave 24GHz radar ----
+#define NB_MMWAVE_DRIVER_C4001 1
 #define NB_MMWAVE_UART_RX      16
 #define NB_MMWAVE_UART_TX      17
 #define NB_MMWAVE_OUT_GPIO     18
-#define NB_MMWAVE_BAUD         115200
+#define NB_MMWAVE_BEGIN_RETRY  5
+#define NB_MMWAVE_BAUD         9600
 #define NB_MMWAVE_MAX_CM       600
-#define NB_MMWAVE_MIN_CM       20
+#define NB_MMWAVE_MIN_CM       30
 #define NB_CLUTTER_SUPPRESS    1
 #define NB_BG_CALIB_MS         6000
 #define NB_MICRO_MOTION_THRESH 8

@@ -65,9 +65,11 @@ void loop() {
   bool wifiPresent = csiStarted ? WifiCsi::present() : false;
 
   // ---- Local indicators ----
-  // Health: ORANGE (all in order) once the device is online and the radar is
-  // producing data; RED while offline or the sensor is faulted.
-  bool sensorOk = Mmwave::calibrating() || lastMmPresentMs != 0 || !isnan(lux) || lastMm.valid;
+  // Health: ORANGE (all in order) once the device is online AND the radar
+  // responded to begin() and is producing data; RED while offline or the
+  // sensor is faulted (never came up / not wired).
+  bool sensorOk = Mmwave::ready() &&
+                  (Mmwave::calibrating() || lastMm.valid || lastMmPresentMs != 0 || !isnan(lux));
   Leds::setHealthy(Net::connected() && sensorOk);
   Leds::update(wifiPresent, mmPresent);
   Leds::tick();

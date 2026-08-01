@@ -32,12 +32,14 @@ server:
 
 # 24GHz mmWave radar (human-only presence). UART-connected.
 mmwave:
-  uart_rx: 16                # ESP32-S3 GPIO16 (RX2) wired to radar TX
-  uart_tx: 17                # ESP32-S3 GPIO17 (TX2) wired to radar RX
-  presence_out_gpio: 18      # optional C4002 digital OUT (HIGH = presence); -1 to disable
-  baud: 115200               # C4002 UART baud (LD2410-style modules use 256000)
-  max_distance_cm: 600       # ignore targets beyond this range gate
-  min_distance_cm: 20        # ignore targets closer than this
+  driver: c4001              # c4001 (DFRobot C4001/SEN0609/SEN0610) | ld2410 (legacy)
+  uart_rx: 16                # ESP32-S3 GPIO16 wired to radar TX
+  uart_tx: 17                # ESP32-S3 GPIO17 wired to radar RX
+  presence_out_gpio: 18      # C4001 HD/OUT: held LOW at boot to force UART mode
+  begin_retry: 5             # radar.begin() attempts before flagging a sensor fault
+  baud: 9600                 # DFRobot C4001 UART baud (LD2410-style modules use 256000)
+  max_distance_cm: 600       # range gate upper bound (C4001 valid 240..2000)
+  min_distance_cm: 30        # range gate lower bound (C4001 minimum is 30)
   # Interference filtering / clutter suppression: sample the empty room on
   # boot and subtract that background so airflow, pets and swaying plants are
   # ignored. Micro-motion below the threshold is treated as clutter.
