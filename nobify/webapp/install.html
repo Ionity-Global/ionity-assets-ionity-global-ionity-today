@@ -171,9 +171,15 @@
     </p>
   </main>
 
+  <footer class="footer">
+    © <span id="foot-year">2025</span> <a href="https://www.ionity.co.za" target="_blank" rel="noopener">Ionity Global (Pty) Ltd</a>
+    · Nobify · MIT
+  </footer>
+
   <div id="toast" class="toast" hidden></div>
 
   <script src="config.js"></script>
   <script src="install.js"></script>
+  <script>document.getElementById('foot-year').textContent = new Date().getFullYear();</script>
 </body>
 </html>

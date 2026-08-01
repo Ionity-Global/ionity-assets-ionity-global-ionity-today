@@ -28,6 +28,7 @@ void setup() {
   Serial.begin(115200);
   delay(200);
   Serial.println("\n[nobify] booting " NB_DEVICE_ID);
+  Serial.println("[nobify] Ionity Global (Pty) Ltd - www.ionity.co.za");
 
   Leds::begin();
   Leds::selfTest();

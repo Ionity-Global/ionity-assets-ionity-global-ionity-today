@@ -311,6 +311,7 @@
   // ---- Init --------------------------------------------------------------
   async function init() {
     $('foot-server').textContent = apiBase();
+    const fy = $('foot-year'); if (fy) fy.textContent = new Date().getFullYear();
     renderSnooze();
     // suggestion chips
     const sg = $('chat-suggest');

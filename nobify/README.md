@@ -167,4 +167,4 @@ wiring, configuration, OTA, CI/CD, troubleshooting).
 
 ## License
 
-MIT — © Ionity Global / Nobify.
+MIT — © Ionity Global (Pty) Ltd · https://www.ionity.co.za
