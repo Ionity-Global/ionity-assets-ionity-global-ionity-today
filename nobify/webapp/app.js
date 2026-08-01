@@ -275,9 +275,9 @@
     ws.onerror = () => { try { ws.close(); } catch {} };
     ws.onmessage = (ev) => {
       let m; try { m = JSON.parse(ev.data); } catch { return; }
-      if (m.type === 'hello') { holdMs = m.state ? holdMs : holdMs; snooze = m.snooze; applyState(m.state); renderSnooze(); }
+      if (m.type === 'hello') { if (m.presenceHoldMs) holdMs = m.presenceHoldMs; snooze = m.snooze; applyState(m.state); renderSnooze(); }
       else if (m.type === 'alert') { noteSource(m.alert.source, m.alert.ts); ingestAlertLatest(m.alert); addFeed(m.alert); applyState(m.state); if (m.snoozed) { /* suppress popup */ } refreshSoon(); }
-      else if (m.type === 'state') { snooze = m.snooze !== undefined ? m.snooze : snooze; applyState(m.state); updateSnoozeStatus(); }
+      else if (m.type === 'state') { if (m.presenceHoldMs) holdMs = m.presenceHoldMs; snooze = m.snooze !== undefined ? m.snooze : snooze; applyState(m.state); updateSnoozeStatus(); }
       else if (m.type === 'snooze') { snooze = m.snooze; renderSnooze(); }
     };
   }

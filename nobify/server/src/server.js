@@ -25,7 +25,7 @@ function broadcast(obj) {
   }
 }
 wss.on('connection', (ws) => {
-  ws.send(JSON.stringify({ type: 'hello', state: liveState(), snooze: currentSnooze(), serverTs: Date.now() }));
+  ws.send(JSON.stringify({ type: 'hello', state: liveState(), snooze: currentSnooze(), serverTs: Date.now(), presenceHoldMs: config.presenceHoldMs }));
   ws.on('message', (buf) => {
     let msg; try { msg = JSON.parse(buf.toString()); } catch { return; }
     if (msg?.type === 'ping') ws.send(JSON.stringify({ type: 'pong', serverTs: Date.now() }));
@@ -243,7 +243,7 @@ server.on('upgrade', (req, socket, head) => {
 });
 
 // Periodically re-broadcast live state so clients clear presence after hold.
-setInterval(() => broadcast({ type: 'state', state: liveState(), snooze: currentSnooze() }), 3000).unref();
+setInterval(() => broadcast({ type: 'state', state: liveState(), snooze: currentSnooze(), presenceHoldMs: config.presenceHoldMs }), 3000).unref();
 
 server.listen(config.port, config.host, () => {
   console.log(`\n  Nobify server ready`);
