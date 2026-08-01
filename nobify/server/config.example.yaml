@@ -16,8 +16,15 @@ server:
   # Externally reachable base URL (used to build OTA download links). Blank =
   # derive from the request. Example: https://nobify.example.com
   public_url: ""
-  # SQLite database path (node:sqlite, no native deps).
-  db_path: ""            # blank = ./data/nobify.db
+  # SQLite database path (node:sqlite, no native deps). Supports ~ and absolute
+  # or relative paths (relative resolves against the current working directory).
+  # Blank = a per-user data dir OUTSIDE the repo, so running the server never
+  # writes into the checkout:
+  #   Windows : %LOCALAPPDATA%\Nobify\nobify.db
+  #   macOS   : ~/Library/Application Support/Nobify/nobify.db
+  #   Linux   : ${XDG_DATA_HOME:-~/.local/share}/nobify/nobify.db
+  # An existing ./data/nobify.db from older versions is auto-migrated once.
+  db_path: ""            # e.g. ~/nobify/nobify.db  or  D:\data\nobify.db
   # Over-the-air firmware updates: directory holding built *.bin + manifest.json.
   ota_enabled: true
   firmware_dir: ""       # blank = ./firmware (server/firmware)

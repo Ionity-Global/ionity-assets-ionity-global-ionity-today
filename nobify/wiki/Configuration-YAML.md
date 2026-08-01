@@ -13,7 +13,12 @@ server:
   ingest_key: ""          # shared secret for x-ingest-key ("" = open)
   serve_webapp: true
   cors_origin: "*"        # for a separately hosted dashboard
-  db_path: ""             # blank = ./data/nobify.db
+  db_path: ""             # blank = per-user data dir outside the repo
+                          #   Win: %LOCALAPPDATA%\Nobify\nobify.db
+                          #   mac: ~/Library/Application Support/Nobify/nobify.db
+                          #   Linux: ${XDG_DATA_HOME:-~/.local/share}/nobify/nobify.db
+                          # supports ~ and absolute/relative paths; an old
+                          # ./data/nobify.db is auto-migrated once.
   ota_enabled: true
   firmware_dir: ""        # blank = ./firmware (holds *.bin + manifest.json)
 sensor:

@@ -1,10 +1,29 @@
 // Persistence layer backed by Node's built-in node:sqlite (no native deps).
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, existsSync, renameSync, copyFileSync, rmSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { config } from './config.js';
 
 mkdirSync(dirname(config.dbPath), { recursive: true });
+
+// One-time migration: if the DB now lives outside the repo (new default) but an
+// older in-repo copy exists and the new path is still empty, move the existing
+// data across (including WAL/SHM sidecars) so upgrades don't lose history.
+if (!existsSync(config.dbPath) && config.legacyDbPath &&
+    config.legacyDbPath !== config.dbPath && existsSync(config.legacyDbPath)) {
+  try {
+    for (const suffix of ['', '-wal', '-shm']) {
+      const from = config.legacyDbPath + suffix;
+      const to = config.dbPath + suffix;
+      if (!existsSync(from)) continue;
+      try { renameSync(from, to); }
+      catch { copyFileSync(from, to); rmSync(from, { force: true }); }
+    }
+    console.log(`[db] migrated database from ${config.legacyDbPath} -> ${config.dbPath}`);
+  } catch (e) {
+    console.warn(`[db] migration skipped: ${e.message}`);
+  }
+}
 
 export const db = new DatabaseSync(config.dbPath);
 

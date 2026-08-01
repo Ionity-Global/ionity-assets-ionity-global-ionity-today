@@ -4,6 +4,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
+import { homedir } from 'node:os';
 import { parse as parseYaml } from 'yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -43,12 +44,40 @@ const pickBool = (env, yv, d) => {
   return v === true || v === 'true' || v === 1 || v === '1';
 };
 
+// Expand a leading ~ (or ~/…) to the user's home directory.
+const expandHome = (p) => {
+  if (!p) return p;
+  if (p === '~') return homedir();
+  if (p.startsWith('~/') || p.startsWith('~\\')) return join(homedir(), p.slice(2));
+  return p;
+};
+
+// Default per-user data directory (OUTSIDE the repo checkout) for the SQLite
+// database, so simply running the server never writes into the source tree.
+// Override anytime with DB_PATH env or server.db_path in config.yaml.
+const defaultDataDir = () => {
+  if (process.platform === 'win32') {
+    return join(process.env.LOCALAPPDATA || process.env.APPDATA || join(homedir(), 'AppData', 'Local'), 'Nobify');
+  }
+  if (process.platform === 'darwin') {
+    return join(homedir(), 'Library', 'Application Support', 'Nobify');
+  }
+  return join(process.env.XDG_DATA_HOME || join(homedir(), '.local', 'share'), 'nobify');
+};
+
+const rawDbPath = pick('DB_PATH', ys.db_path, '');
+// A configured path wins (relative paths resolve against CWD); blank => per-user dir.
+const dbPath = rawDbPath ? resolve(expandHome(String(rawDbPath))) : join(defaultDataDir(), 'nobify.db');
+// Legacy in-repo location kept only so existing data can be auto-migrated once.
+const legacyDbPath = join(rootDir, 'data', 'nobify.db');
+
 export const config = {
   rootDir,
   yamlPath: existsSync(yamlPath) ? yamlPath : null,
   port: pickNum('PORT', ys.port, 8787),
   host: pick('HOST', ys.host, '0.0.0.0'),
-  dbPath: pick('DB_PATH', ys.db_path, join(rootDir, 'data', 'nobify.db')),
+  dbPath,
+  legacyDbPath,
   ingestKey: pick('INGEST_KEY', ys.ingest_key, ''),
   serveWebapp: pickBool('SERVE_WEBAPP', ys.serve_webapp, true),
   webappDir: resolve(rootDir, '..', 'webapp'),
