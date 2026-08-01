@@ -44,6 +44,57 @@ npm start
 npx localtunnel --port 8787      # or: cloudflared tunnel --url http://localhost:8787
 ```
 
+### Behind a reverse proxy (TLS)
+
+When Nobify runs behind Caddy, nginx, or Cloudflare, set `trust_proxy: true` so it
+honours `x-forwarded-for` / `x-forwarded-proto`, and pin the external base URL with
+`public_url` so OTA download links are correct:
+
+```yaml
+server:
+  trust_proxy: true
+  public_url: "https://nobify.example.com"
+```
+
+Caddy makes TLS + proxying a one-liner:
+
+```
+nobify.example.com {
+    reverse_proxy 127.0.0.1:8787
+}
+```
+
+nginx equivalent:
+
+```nginx
+server {
+    server_name nobify.example.com;
+    location / {
+        proxy_pass         http://127.0.0.1:8787;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade $http_upgrade;         # WebSocket
+        proxy_set_header   Connection "upgrade";
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+## Over-the-air (OTA) firmware
+
+Devices poll `GET /api/firmware/manifest` and self-update. Publish a build so they
+pick it up:
+
+```bash
+# copy a locally-built firmware.bin into the OTA dir + write manifest.json
+npm run publish:firmware -- 0.1.0 --notes "bugfixes"
+#   (auto-detects ../firmware/.pio/build/*/firmware.bin if no path is given)
+
+# or pull the latest GitHub Release image and publish it
+npm run sync:firmware
+```
+
 ## Files
 
 - `src/server.js` — HTTP + WebSocket, routing, static hosting, ingest, broadcast

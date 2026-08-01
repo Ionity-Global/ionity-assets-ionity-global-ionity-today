@@ -13,6 +13,8 @@
     "dev": "node --watch --disable-warning=ExperimentalWarning src/server.js",
     "test": "node --disable-warning=ExperimentalWarning test/smoke.test.js",
     "gen:firmware": "node --disable-warning=ExperimentalWarning scripts/gen-firmware-config.mjs",
+    "publish:firmware": "node --disable-warning=ExperimentalWarning scripts/publish-firmware.mjs",
+    "sync:firmware": "node --disable-warning=ExperimentalWarning scripts/sync-release-firmware.mjs",
     "build:bundle": "node scripts/build-server-bundle.mjs"
   },
   "dependencies": {

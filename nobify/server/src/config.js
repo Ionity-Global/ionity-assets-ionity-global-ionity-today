@@ -56,6 +56,10 @@ export const config = {
   presenceHoldMs: pickNum('PRESENCE_HOLD_MS', yn.presence_hold_ms, 8000),
   historyLimit: pickNum('HISTORY_LIMIT', ys.history_limit, 5000),
   corsOrigin: pick('CORS_ORIGIN', ys.cors_origin, '*'),
+  // Reverse-proxy support: only honour x-forwarded-* when explicitly trusted,
+  // and let operators pin the externally-reachable base URL (used for OTA).
+  trustProxy: pickBool('TRUST_PROXY', ys.trust_proxy, false),
+  publicUrl: pick('PUBLIC_URL', ys.public_url, '').replace(/\/+$/, ''),
   darkLuxThreshold: pickNum('DARK_LUX', yn.dark_lux_threshold, 5),
   // Over-the-air firmware: directory that holds *.bin + optional manifest.json.
   firmwareDir: resolve(pick('FIRMWARE_DIR', ys.firmware_dir, join(rootDir, 'firmware'))),

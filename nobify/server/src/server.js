@@ -133,7 +133,8 @@ function normalizeDirection(dir, speed) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const p = url.pathname;
-  const ip = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || '').replace('::ffff:', '');
+  // Only trust proxy-supplied client IPs when explicitly configured.
+  const ip = ((config.trustProxy && req.headers['x-forwarded-for']?.split(',')[0]) || req.socket.remoteAddress || '').replace('::ffff:', '');
 
   if (req.method === 'OPTIONS') { sendJson(res, 204, {}); return; }
 
@@ -177,8 +178,13 @@ const server = http.createServer(async (req, res) => {
       const m = getManifest();
       if (!m) return sendJson(res, 200, { available: false });
       const info = binInfo(m.bin);
-      const proto = (req.headers['x-forwarded-proto']?.split(',')[0]) || 'http';
-      const fwBase = `${proto}://${req.headers.host}`;
+      // Prefer an operator-pinned public URL; otherwise derive from the request,
+      // trusting x-forwarded-proto only when configured behind a proxy.
+      let fwBase = config.publicUrl;
+      if (!fwBase) {
+        const proto = (config.trustProxy && req.headers['x-forwarded-proto']?.split(',')[0]) || 'http';
+        fwBase = `${proto}://${req.headers.host}`;
+      }
       const current = url.searchParams.get('current') || url.searchParams.get('version');
       const updateAvailable = current ? compareVersions(m.version, current) > 0 : true;
       return sendJson(res, 200, {
