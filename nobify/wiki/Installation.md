@@ -7,7 +7,6 @@ Four parts, install what you need. Everything lives under `nobify/`.
 ```bash
 cd nobify/server
 npm install
-npm run seed      # optional demo data
 npm start         # http://localhost:8787  (also serves the dashboard)
 npm test          # end-to-end smoke test
 ```

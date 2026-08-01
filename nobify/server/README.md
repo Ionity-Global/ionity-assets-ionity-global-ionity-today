@@ -12,7 +12,6 @@ npm install
 npm start          # http://localhost:8787  (also serves ../webapp)
 npm run dev        # auto-restart on changes
 npm test           # end-to-end smoke test (spins up a throwaway server)
-npm run seed       # insert ~3 days of demo detections
 ```
 
 ## Configuration

@@ -12,13 +12,16 @@
     "start": "node --disable-warning=ExperimentalWarning src/server.js",
     "dev": "node --watch --disable-warning=ExperimentalWarning src/server.js",
     "test": "node --disable-warning=ExperimentalWarning test/smoke.test.js",
-    "seed": "node --disable-warning=ExperimentalWarning scripts/seed.js",
-    "gen:firmware": "node --disable-warning=ExperimentalWarning scripts/gen-firmware-config.mjs"
+    "gen:firmware": "node --disable-warning=ExperimentalWarning scripts/gen-firmware-config.mjs",
+    "build:bundle": "node scripts/build-server-bundle.mjs"
   },
   "dependencies": {
     "ws": "^8.18.0",
     "yaml": "^2.5.1"
   },
-  "author": "Ionity Global / Nobify",
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  },
+  "author": "Ionity Global (Pty) Ltd",
   "license": "MIT"
 }

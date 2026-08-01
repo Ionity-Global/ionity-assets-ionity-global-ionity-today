@@ -1,0 +1,17 @@
+{
+  "name": "Nobify Presence Sensor",
+  "version": "0.1.0",
+  "funding_url": "https://www.ionity.co.za",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32-S3",
+      "parts": [
+        {
+          "path": "https://github.com/Ionity-Global/ionity-assets-ionity-global-ionity-today/releases/latest/download/nobify-factory.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}

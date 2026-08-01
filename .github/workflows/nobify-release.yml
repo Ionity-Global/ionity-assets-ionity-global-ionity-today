@@ -1,7 +1,9 @@
 name: Nobify Release
 
-# Builds the desktop companion installers + the ESP32-S3 firmware image and
-# publishes them (with an OTA manifest) to a GitHub Release.
+# Builds the desktop companion executables (Windows/macOS/Linux, native per-OS
+# via Node SEA), compiles the ESP32-S3 firmware, produces a merged factory image
+# for the browser web-flasher, and publishes everything (with OTA manifests) to a
+# GitHub Release.
 #
 # Trigger by pushing a tag like `nobify-v1.1.0`, or run manually with a version.
 
@@ -18,11 +20,12 @@ permissions:
   contents: write
 
 jobs:
-  build-and-release:
+  # ---- Resolve the version once, share with all jobs --------------------------
+  version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-
       - name: Resolve version
         id: ver
         run: |
@@ -34,6 +37,66 @@ jobs:
           echo "version=$V" >> "$GITHUB_OUTPUT"
           echo "Building Nobify v$V"
 
+  # ---- Desktop companion executables (native build per OS) --------------------
+  companion:
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: nobify-companion-win.exe
+          - os: macos-latest
+            artifact: nobify-companion-macos
+          - os: ubuntu-latest
+            artifact: nobify-companion-linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build companion binary
+        working-directory: nobify/companion
+        run: |
+          npm install --no-audit --no-fund
+          npm run build:bin
+      - name: Upload companion artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: nobify/companion/dist/${{ matrix.artifact }}
+          if-no-files-found: error
+
+  # ---- Single-file server bundle (download & run, no npm install) -------------
+  server:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build single-file server
+        working-directory: nobify/server
+        run: |
+          npm install --no-audit --no-fund
+          npm run build:bundle
+      - name: Upload server artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: server
+          path: nobify/server/dist/nobify-server.mjs
+          if-no-files-found: error
+
+  # ---- Firmware image + factory (web-flasher) image + OTA manifests -----------
+  firmware:
+    needs: version
+    runs-on: ubuntu-latest
+    env:
+      VER: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -47,47 +110,76 @@ jobs:
             ~/.platformio
             ~/.cache/pip
           key: pio-${{ runner.os }}-${{ hashFiles('nobify/firmware/platformio.ini') }}
-
-      # ---- Firmware (.bin) + OTA manifest ----
-      - name: Install PlatformIO
-        run: pip install --upgrade platformio
+      - name: Install PlatformIO + esptool
+        run: pip install --upgrade platformio esptool
       - name: Server deps + firmware header
         working-directory: nobify/server
         run: npm install --no-audit --no-fund && npm run gen:firmware
       - name: Compile firmware
         working-directory: nobify/firmware
         run: pio run
-      - name: Stage firmware + manifest
-        env:
-          VER: ${{ steps.ver.outputs.version }}
+      - name: Stage firmware, factory image + manifests
+        run: |
+          set -e
+          mkdir -p dist
+          BUILD=$(dirname "$(ls nobify/firmware/.pio/build/*/firmware.bin | head -n1)")
+          echo "Build dir: $BUILD"
+          cp "$BUILD/firmware.bin" "dist/nobify-fw-$VER.bin"
+
+          # Locate the parts needed for a full factory image.
+          BOOTLOADER="$BUILD/bootloader.bin"
+          PARTITIONS="$BUILD/partitions.bin"
+          BOOTAPP0=$(ls ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin | head -n1)
+          echo "bootloader=$BOOTLOADER partitions=$PARTITIONS boot_app0=$BOOTAPP0"
+
+          # Merge into a single flashable image (offset 0) for ESP Web Tools.
+          python -m esptool --chip esp32s3 merge-bin \
+            -o dist/nobify-factory.bin \
+            --flash-mode dio --flash-freq 80m --flash-size 16MB \
+            0x0 "$BOOTLOADER" \
+            0x8000 "$PARTITIONS" \
+            0xe000 "$BOOTAPP0" \
+            0x10000 "$BUILD/firmware.bin"
+
+          # OTA manifest (devices poll this).
+          node -e "require('fs').writeFileSync('dist/manifest.json', JSON.stringify({version:process.env.VER, bin:'nobify-fw-'+process.env.VER+'.bin', notes:'Nobify firmware '+process.env.VER, mandatory:false, ts:Date.now()}, null, 2))"
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: |
+            dist/nobify-fw-*.bin
+            dist/nobify-factory.bin
+            dist/manifest.json
+          if-no-files-found: error
+
+  # ---- Gather everything + publish the Release --------------------------------
+  release:
+    needs: [version, companion, server, firmware]
+    runs-on: ubuntu-latest
+    env:
+      VER: ${{ needs.version.outputs.version }}
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: staging
+      - name: Flatten artifacts
         run: |
           mkdir -p dist
-          BIN=$(ls nobify/firmware/.pio/build/*/firmware.bin | head -n1)
-          cp "$BIN" "dist/nobify-fw-$VER.bin"
-          node -e "require('fs').writeFileSync('dist/manifest.json', JSON.stringify({version:process.env.VER, bin:'nobify-fw-'+process.env.VER+'.bin', notes:'Nobify firmware '+process.env.VER, mandatory:false, ts:Date.now()}, null, 2))"
-
-      # ---- Desktop companion binaries (Windows/macOS/Linux) ----
-      - name: Companion deps
-        working-directory: nobify/companion
-        run: npm install --no-audit --no-fund
-      - name: Build companion binaries
-        working-directory: nobify/companion
-        run: npm run build:bin
-      - name: Collect companion binaries
-        run: cp nobify/companion/dist/nobify-companion-* dist/ || true
-
-      - name: List artifacts
-        run: ls -la dist
-
+          find staging -type f -exec cp {} dist/ \;
+          ls -la dist
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('nobify-v{0}', steps.ver.outputs.version) }}
-          name: Nobify v${{ steps.ver.outputs.version }}
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('nobify-v{0}', env.VER) }}
+          name: Nobify v${{ env.VER }}
           generate_release_notes: true
           files: |
             dist/nobify-companion-win.exe
             dist/nobify-companion-macos
             dist/nobify-companion-linux
-            dist/nobify-fw-${{ steps.ver.outputs.version }}.bin
+            dist/nobify-server.mjs
+            dist/nobify-factory.bin
+            dist/nobify-fw-${{ env.VER }}.bin
             dist/manifest.json

@@ -70,6 +70,46 @@ export function liveState() {
   };
 }
 
+// Predict arrival: turns live speed + distance + direction into an ETA and a
+// movement classification. Pure kinematics + heuristics — deterministic/offline.
+export function predict() {
+  const live = liveState();
+  const dist = live.lastDistanceCm;
+  const speed = live.speedCms != null ? Math.abs(live.speedCms) : null;
+  const dir = live.direction;
+  const out = {
+    present: live.present, direction: dir, speedCms: live.speedCms,
+    distanceCm: dist, movement: 'unknown', etaSec: null, closing: null,
+    confidence: 0, message: '',
+  };
+  // Movement band (cm/s): still <2, strolling <60, walking <150, fast otherwise.
+  if (speed == null) out.movement = dir === 'stationary' ? 'stationary' : 'unknown';
+  else if (speed < 2) out.movement = 'stationary';
+  else if (speed < 60) out.movement = 'slow';
+  else if (speed < 150) out.movement = 'walking';
+  else out.movement = 'fast';
+  out.closing = dir === 'approaching' ? true : dir === 'leaving' ? false : null;
+  if (out.closing && dist != null && speed && speed >= 2) {
+    out.etaSec = Math.max(0, Math.round((dist / speed) * 10) / 10);
+  }
+  // Confidence blends presence, data freshness, motion data and sensor fusion.
+  const fresh = live.sinceMs != null && live.sinceMs < config.presenceHoldMs;
+  let c = 0;
+  if (live.present) c += 0.4;
+  if (fresh) c += 0.2;
+  if (speed != null) c += 0.2;
+  if (live.sources.length > 1) c += 0.2;
+  out.confidence = clamp01(c);
+  const m = dist != null ? (dist / 100).toFixed(1) : null;
+  if (!live.present) out.message = `No one is approaching — area clear (last presence ${fmtAgo(live.sinceMs)}).`;
+  else if (out.closing && out.etaSec != null)
+    out.message = `Approaching${m ? ` from ~${m} m` : ''} at ~${Math.round(speed)} cm/s — arriving in ~${out.etaSec}s.`;
+  else if (out.closing) out.message = `Someone is approaching${dist != null ? ` (~${Math.round(dist)} cm)` : ''}.`;
+  else if (out.closing === false) out.message = `Target is moving away${speed ? ` at ~${Math.round(speed)} cm/s` : ''}.`;
+  else out.message = out.movement === 'stationary' ? 'Someone is present but not moving.' : 'Someone is present nearby.';
+  return out;
+}
+
 // The core analytics report.
 export function insights({ windowMs = DAY } = {}) {
   const s = stats(windowMs);
@@ -233,6 +273,11 @@ export function ask(question = '') {
     return reply(live.speedCms != null
       ? `The last target moved at ~${Math.abs(Math.round(live.speedCms))} cm/s (${live.direction || 'direction unknown'}).`
       : 'No speed data reported yet.');
+
+  if (has('arrive', 'arriving', 'eta', 'how long', 'when will', 'reach', 'get here', 'coming to')) {
+    const pr = predict();
+    return reply(pr.message, { prediction: pr });
+  }
 
   if (has('busiest', 'peak', 'what hour', 'which hour', 'when is it busy')) {
     const i = ins();

@@ -18,9 +18,17 @@
   set('dl-win', asset(assets.win));
   set('dl-mac', asset(assets.mac));
   set('dl-linux', asset(assets.linux));
+  set('dl-server', asset('nobify-server.mjs'));
   set('repo-link', base);
 
   document.querySelectorAll('.repo-slug').forEach((el) => { el.textContent = repo; });
+
+  // GitHub Pages host for this repo (owner.github.io/repo), used in the
+  // one-line install commands so they fetch install.ps1 / install.sh from here.
+  const [owner, repoName] = repo.split('/');
+  const pagesHost = cfg.pagesHost || `${(owner || 'owner').toLowerCase()}.github.io/${repoName || 'repo'}`;
+  document.querySelectorAll('.pages-host').forEach((el) => { el.textContent = pagesHost; });
+
   const tree = `${base}/tree/HEAD/nobify`;
   const link = (sel, href) => document.querySelectorAll(sel).forEach((a) => { a.href = href; });
   link('.repo-tree', `${tree}/server`);
@@ -32,6 +40,22 @@
   const ua = navigator.userAgent;
   const os = /Win/i.test(ua) ? 'win' : /Mac/i.test(ua) ? 'mac' : /Linux|X11/i.test(ua) ? 'linux' : null;
   if (os) { const el = document.getElementById(`os-${os}`); if (el) el.classList.add('current'); }
+
+  // Browser can't flash without WebSerial — flag the body so the flasher
+  // section swaps to a "use Chrome/Edge" hint instead of a dead button.
+  if (!('serial' in navigator)) document.body.classList.add('no-webserial');
+
+  // One-line installer tabs (Windows vs macOS/Linux). Default to the visitor's OS.
+  const preferUnix = os === 'mac' || os === 'linux';
+  document.querySelectorAll('.oneliner-tabs').forEach((tabs) => {
+    const scope = tabs.closest('section') || document;
+    const showPane = (which) => {
+      tabs.querySelectorAll('[data-oneliner]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.oneliner === which)));
+      scope.querySelectorAll('[data-oneliner-pane]').forEach((p) => { p.hidden = p.dataset.onelinerPane !== which; });
+    };
+    tabs.querySelectorAll('[data-oneliner]').forEach((b) => b.addEventListener('click', () => showPane(b.dataset.oneliner)));
+    showPane(preferUnix ? 'unix' : 'win');
+  });
 
   // Copy buttons.
   function toast(msg) {

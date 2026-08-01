@@ -44,11 +44,8 @@ h2 { font-size: 1.02rem; }
 .tagline { margin: 0; font-size: 0.72rem; color: var(--muted); }
 .brand-mark {
   width: 34px; height: 34px; border-radius: 10px;
-  background: conic-gradient(from 200deg, var(--wifi), var(--accent), var(--mmwave), var(--wifi));
+  background: #0a0e1a url("assets/nobify-mark.svg") center/cover no-repeat;
   box-shadow: 0 0 18px rgba(18, 214, 166, 0.5); position: relative;
-}
-.brand-mark::after {
-  content: ""; position: absolute; inset: 6px; border-radius: 6px; background: var(--bg);
 }
 .topbar-right { display: flex; align-items: center; gap: 10px; }
 
@@ -201,7 +198,8 @@ main { max-width: 1220px; margin: 0 auto; padding: 22px; display: flex; flex-dir
 #hour-chart { width: 100%; display: block; }
 
 /* ---- Footer ---- */
-.footer { text-align: center; color: var(--muted); font-size: 0.76rem; padding: 22px; }
+.footer { text-align: center; color: var(--muted); font-size: 0.76rem; padding: 22px; line-height: 1.7; }
+.footer a { color: var(--accent); text-decoration: none; }
 
 /* ---- Dialog ---- */
 .dialog { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); color: var(--txt); padding: 0; box-shadow: var(--shadow); max-width: 420px; width: 92%; }

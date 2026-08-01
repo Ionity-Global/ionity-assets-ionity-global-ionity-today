@@ -15,8 +15,8 @@ import { loadConfig } from './config.js';
 import { notify, openUrl, onNotificationClick } from './notify.js';
 import { createTray } from './tray.js';
 
-const cfg = await loadConfig();
-const wsUrl = cfg.server.replace(/^http/, 'ws') + '/ws';
+let cfg;
+let wsUrl;
 
 let snoozeUntil = 0;                 // epoch ms; > now means muted
 let lastPresent = false;
@@ -155,28 +155,35 @@ function shutdown() {
 }
 
 // ---- Boot ----------------------------------------------------------------
-console.log(`\n  Nobify Companion`);
-console.log(`  ├─ Server   : ${cfg.server}`);
-console.log(`  ├─ Dashboard: ${cfg.dashboardUrl}`);
-console.log(`  └─ Filter   : ${cfg.onlySource === 'any' ? 'all sources' : cfg.onlySource} · snooze default ${cfg.defaultSnoozeMin}m`);
+async function main() {
+  cfg = await loadConfig();
+  wsUrl = cfg.server.replace(/^http/, 'ws') + '/ws';
 
-onNotificationClick(() => openUrl(cfg.dashboardUrl));
+  console.log(`\n  Nobify Companion`);
+  console.log(`  ├─ Server   : ${cfg.server}`);
+  console.log(`  ├─ Dashboard: ${cfg.dashboardUrl}`);
+  console.log(`  └─ Filter   : ${cfg.onlySource === 'any' ? 'all sources' : cfg.onlySource} · snooze default ${cfg.defaultSnoozeMin}m`);
 
-if (cfg.tray) {
-  tray = await createTray({
-    presets: cfg.snoozePresets,
-    dashboardUrl: cfg.dashboardUrl,
-    onOpen: () => openUrl(cfg.dashboardUrl),
-    onSnooze: (m) => postSnooze(m),
-    onClear: () => clearSnooze(),
-    onQuit: () => shutdown(),
-  });
-  log(tray ? 'system-tray icon active' : 'tray unavailable (install "systray2" for a tray icon) — running headless');
+  onNotificationClick(() => openUrl(cfg.dashboardUrl));
+
+  if (cfg.tray) {
+    tray = await createTray({
+      presets: cfg.snoozePresets,
+      dashboardUrl: cfg.dashboardUrl,
+      onOpen: () => openUrl(cfg.dashboardUrl),
+      onSnooze: (m) => postSnooze(m),
+      onClear: () => clearSnooze(),
+      onQuit: () => shutdown(),
+    });
+    log(tray ? 'system-tray icon active' : 'tray unavailable (install "systray2" for a tray icon) — running headless');
+  }
+
+  const wsOk = await startWebSocket();
+  if (!wsOk) { log('ws module not installed — using built-in polling'); await startPolling(); }
+
+  setupKeyboard();
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 }
 
-const wsOk = await startWebSocket();
-if (!wsOk) { log('ws module not installed — using built-in polling'); await startPolling(); }
-
-setupKeyboard();
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+main().catch((err) => { console.error('[nobify] fatal:', err); process.exit(1); });

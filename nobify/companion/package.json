@@ -10,16 +10,22 @@
   "scripts": {
     "start": "node src/index.js",
     "check": "node --check src/index.js && node --check src/config.js && node --check src/notify.js",
-    "build:bin": "npx -y @yao-pkg/pkg . --targets node20-win-x64,node20-macos-x64,node20-linux-x64 --output dist/nobify-companion"
+    "build:bin": "node scripts/build-sea.mjs"
   },
   "pkg": {
     "assets": ["assets/**/*"],
     "scripts": ["src/**/*.js"]
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "postject": "^1.0.0-alpha.6"
   },
   "optionalDependencies": {
     "ws": "^8.18.0",
     "node-notifier": "^10.0.1",
     "systray2": "^2.0.3",
     "yaml": "^2.5.1"
-  }
+  },
+  "author": "Ionity Global (Pty) Ltd",
+  "license": "MIT"
 }

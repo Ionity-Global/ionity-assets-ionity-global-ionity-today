@@ -6,7 +6,16 @@
   <title>Install · Nobify</title>
   <meta name="description" content="Install the Nobify server, desktop companion, and ESP32-S3 firmware (with OTA)." />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#0a0e1a" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Install · Nobify" />
+  <meta property="og:description" content="Download the Nobify desktop companion, flash your ESP32-S3 from the browser, and run the server. By Ionity Global (Pty) Ltd." />
+  <meta property="og:image" content="assets/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js"></script>
   <link rel="stylesheet" href="styles.css" />
   <style>
     .install-main { max-width: 1000px; margin: 0 auto; padding: 20px 18px 60px; }
@@ -28,6 +37,18 @@
     .two { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 720px){ .two { grid-template-columns: 1fr; } }
     a.link { color: var(--accent); }
+    .flash-card { border: 1px solid #2a3a5f; background: linear-gradient(160deg,#0c1428,#0a1120); }
+    .flash-cta { display:flex; flex-wrap:wrap; align-items:center; gap:14px; margin:8px 0 4px; }
+    esp-web-install-button { --esp-tools-button-color:#04120d; --esp-tools-button-text-color:#04120d; }
+    esp-web-install-button[install-unsupported] { display:none; }
+    .flash-unsupported { display:none; color:#ffbd6b; font-size:.9rem; }
+    .no-webserial esp-web-install-button { display:none; }
+    .no-webserial .flash-unsupported { display:block; }
+    .flash-steps { color: var(--muted); font-size:.9rem; margin:10px 0 0; padding-left:18px; }
+    .flash-steps li { margin:3px 0; }
+    .oneliner-tabs { display:flex; gap:6px; margin:4px 0 6px; }
+    .oneliner-tabs button { font-size:.78rem; }
+    .oneliner-tabs button[aria-selected="true"] { background: var(--card-2); border-color:#2a3a5f; }
   </style>
 </head>
 <body data-connection="connected">
@@ -50,13 +71,13 @@
       Nobify has three parts: a small <strong>server</strong> that collects detections,
       a <strong>dashboard</strong> (this site), and a <strong>desktop companion</strong> that
       shows tray notifications. The <strong>ESP32-S3</strong> sensor node uploads over WiFi and
-      updates itself over-the-air. Grab what you need below.
+      updates itself over-the-air. No source checkout required — download, flash, done.
     </p>
 
     <!-- DESKTOP COMPANION DOWNLOADS -->
     <section class="card" style="margin-top:18px">
       <div class="card-head"><h2>1 · Desktop companion</h2><span class="tag">tray notifications + snooze</span></div>
-      <p class="muted">Double-click installers (no Node required). Pick your platform:</p>
+      <p class="muted">Double-click installers — no Node, no build tools. Pick your platform:</p>
       <div class="dl-grid">
         <div class="card dl" data-os="win">
           <span class="os" id="os-win">🪟 Windows</span>
@@ -71,26 +92,65 @@
           <a id="dl-linux" class="btn btn-primary" href="#">Download</a>
         </div>
       </div>
-      <p class="muted small" style="margin-top:12px">
-        Prefer Node? <span class="tag">zero-dep friendly</span>
+      <p class="muted small" style="margin-top:12px">Or install &amp; register run-at-login with one line:</p>
+      <div class="oneliner-tabs" role="tablist" aria-label="Installer command">
+        <button class="btn btn-ghost btn-sm" role="tab" aria-selected="true" data-oneliner="win">Windows</button>
+        <button class="btn btn-ghost btn-sm" role="tab" aria-selected="false" data-oneliner="unix">macOS / Linux</button>
+      </div>
+      <pre data-oneliner-pane="win"><button class="btn btn-ghost btn-sm copy">Copy</button><code>irm https://<span class="pages-host">OWNER.github.io/REPO</span>/install.ps1 | iex</code></pre>
+      <pre data-oneliner-pane="unix" hidden><button class="btn btn-ghost btn-sm copy">Copy</button><code>curl -fsSL https://<span class="pages-host">OWNER.github.io/REPO</span>/install.sh | bash</code></pre>
+      <p class="muted small">Then point it at your server: <code>nobify --server https://your-server</code> (the tray menu can change it too).</p>
+    </section>
+
+    <!-- WEB FLASHER -->
+    <section class="card flash-card">
+      <div class="card-head"><h2>2 · Flash your ESP32-S3</h2><span class="tag">right here in the browser</span></div>
+      <p class="muted">
+        Plug the sensor into USB and flash the latest factory firmware directly from this page —
+        no PlatformIO, no <code>esptool</code>, no source. Works in Chrome/Edge over WebSerial.
       </p>
-      <pre><button class="btn btn-ghost btn-sm copy">Copy</button><code>git clone https://github.com/<span class="repo-slug">OWNER/REPO</span>.git
-cd nobify/companion
-npm install            # optional — adds tray icon + rich toasts
-npm start -- --server http://localhost:8787</code></pre>
+      <div class="flash-cta">
+        <esp-web-install-button manifest="manifest-esp.json">
+          <button slot="activate" class="btn btn-primary">⚡ Flash Nobify to my ESP32-S3</button>
+          <span slot="unsupported" class="flash-unsupported">Open this page in Chrome or Edge on desktop to flash over USB.</span>
+          <span slot="not-allowed" class="flash-unsupported">WebSerial needs an HTTPS page (this one) and a permitted USB port.</span>
+        </esp-web-install-button>
+        <span class="flash-unsupported">Open in Chrome or Edge on desktop to flash over USB.</span>
+      </div>
+      <ol class="flash-steps">
+        <li>Hold <strong>BOOT</strong>, tap <strong>RST</strong>, release <strong>BOOT</strong> to enter download mode (native-USB S3 boards need this).</li>
+        <li>Click <strong>Flash</strong> above and pick the <em>USB JTAG/serial</em> port.</li>
+        <li>Right after flashing, this page asks for your <strong>WiFi network</strong> (Improv-WiFi over USB) and sends it to the device — no secrets are baked into the public image.</li>
+        <li>Then open <code>http://&lt;device-ip&gt;/</code> (the browser offers the link) to point the sensor at your server URL.</li>
+      </ol>
+      <p class="muted small" style="margin-top:10px">
+        After the first flash, devices poll <code>/api/firmware/manifest</code> and self-update
+        <strong>over-the-air</strong> — you never have to plug in again.
+      </p>
     </section>
 
     <!-- SERVER -->
     <section class="card">
-      <div class="card-head"><h2>2 · Server (local or hosted)</h2><span class="tag">Node ≥ 22.5 · zero native deps</span></div>
-      <ol class="steps">
-        <li>
-          <strong>Install &amp; run</strong>
-          <pre><button class="btn btn-ghost btn-sm copy">Copy</button><code>cd nobify/server
-npm install
-npm run seed     # optional demo data
-npm start        # http://localhost:8787</code></pre>
-        </li>
+      <div class="card-head"><h2>3 · Server (local or hosted)</h2><span class="tag">Node ≥ 22.5 · single file</span></div>
+      <p class="muted">
+        One self-contained file — no clone, no <code>npm install</code>, no node_modules.
+        Download it and run:
+      </p>
+      <div class="dl-grid" style="grid-template-columns:minmax(210px,320px)">
+        <div class="card dl">
+          <span class="os">📦 nobify-server.mjs</span>
+          <a id="dl-server" class="btn btn-primary" href="#">Download server</a>
+        </div>
+      </div>
+      <p class="muted small" style="margin-top:12px">…or fetch &amp; start in one line:</p>
+      <div class="oneliner-tabs" role="tablist" aria-label="Server command">
+        <button class="btn btn-ghost btn-sm" role="tab" aria-selected="true" data-oneliner="win">Windows</button>
+        <button class="btn btn-ghost btn-sm" role="tab" aria-selected="false" data-oneliner="unix">macOS / Linux</button>
+      </div>
+      <pre data-oneliner-pane="win"><button class="btn btn-ghost btn-sm copy">Copy</button><code>irm https://github.com/<span class="repo-slug">OWNER/REPO</span>/releases/latest/download/nobify-server.mjs -OutFile nobify-server.mjs; node nobify-server.mjs</code></pre>
+      <pre data-oneliner-pane="unix" hidden><button class="btn btn-ghost btn-sm copy">Copy</button><code>curl -fsSL https://github.com/<span class="repo-slug">OWNER/REPO</span>/releases/latest/download/nobify-server.mjs -o nobify-server.mjs && node nobify-server.mjs</code></pre>
+      <p class="muted small">Starts on <code>http://localhost:8787</code>. It creates a <code>data/</code> folder next to itself for the database.</p>
+      <ol class="steps" style="margin-top:14px">
         <li>
           <strong>Expose it</strong> (so the ESP32 and this dashboard can reach it). For a quick tunnel:
           <pre><button class="btn btn-ghost btn-sm copy">Copy</button><code>npx localtunnel --port 8787
@@ -103,30 +163,6 @@ npm start        # http://localhost:8787</code></pre>
       </ol>
     </section>
 
-    <!-- FIRMWARE + OTA -->
-    <section class="card">
-      <div class="card-head"><h2>3 · ESP32-S3 firmware + OTA</h2><span class="tag">PlatformIO</span></div>
-      <div class="two">
-        <div>
-          <h3>Flash the first time (USB)</h3>
-          <pre><button class="btn btn-ghost btn-sm copy">Copy</button><code># 1. edit nobify/firmware/nobify.config.yaml
-#    (wifi, server.url, pins)
-cd nobify/server && npm run gen:firmware
-cd ../firmware && pio run -t upload
-pio device monitor</code></pre>
-        </div>
-        <div>
-          <h3>Update later (over-the-air)</h3>
-          <p class="muted">Devices poll <code>/api/firmware/manifest</code> and self-update. Publish a build:</p>
-          <pre><button class="btn btn-ghost btn-sm copy">Copy</button><code># drop the built image + manifest on the server
-cp .pio/build/*/firmware.bin \
-   ../server/firmware/nobify-fw-1.1.0.bin
-# server serves it; ESP32 upgrades automatically</code></pre>
-          <p class="muted small">Local push OTA also works: <code>pio run -t upload --upload-port &lt;device-ip&gt;</code></p>
-        </div>
-      </div>
-    </section>
-
     <p class="muted small">
       Full docs: <a class="link repo-tree" href="#" target="_blank" rel="noopener">server</a> ·
       <a class="link repo-tree-c" href="#" target="_blank" rel="noopener">companion</a> ·
@@ -135,9 +171,15 @@ cp .pio/build/*/firmware.bin \
     </p>
   </main>
 
+  <footer class="footer">
+    © <span id="foot-year">2025</span> <a href="https://www.ionity.co.za" target="_blank" rel="noopener">Ionity Global (Pty) Ltd</a>
+    · Nobify · MIT
+  </footer>
+
   <div id="toast" class="toast" hidden></div>
 
   <script src="config.js"></script>
   <script src="install.js"></script>
+  <script>document.getElementById('foot-year').textContent = new Date().getFullYear();</script>
 </body>
 </html>

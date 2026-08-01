@@ -11,6 +11,7 @@
 #include "display.h"
 #include "mmwave.h"
 #include "wifi_csi.h"
+#include "provision.h"
 #include "net.h"
 #include "ota.h"
 
@@ -27,6 +28,7 @@ void setup() {
   Serial.begin(115200);
   delay(200);
   Serial.println("\n[nobify] booting " NB_DEVICE_ID);
+  Serial.println("[nobify] Ionity Global (Pty) Ltd - www.ionity.co.za");
 
   Leds::begin();
   Leds::selfTest();
@@ -34,11 +36,13 @@ void setup() {
   Display::banner("Starting", NB_DEVICE_NAME);
 
   Mmwave::begin();
+  Provision::begin();
   Net::begin();
   Ota::begin();
 }
 
 void loop() {
+  Provision::loop();
   Net::loop();
   Ota::loop();
 
