@@ -4,8 +4,8 @@ import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const rootDir = resolve(__dirname, '..');
+const __here = import.meta.url ? dirname(fileURLToPath(import.meta.url)) : dirname(process.execPath);
+const rootDir = resolve(__here, '..');
 
 function parseArgs(argv) {
   const out = {};

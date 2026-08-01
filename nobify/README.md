@@ -63,7 +63,7 @@ nobify/
 │   └── src/  main · mmwave · wifi_csi · leds · display · net · ota
 ├── server/                   Node.js backend (http + ws + node:sqlite + AI + OTA)
 │   ├── src/  server · db · ai · config · firmware
-│   ├── scripts/ seed · gen-firmware-config
+│   ├── scripts/ gen-firmware-config
 │   ├── firmware/  OTA binaries + manifest.json (git-ignored)
 │   └── test/ smoke.test.js
 ├── companion/                Desktop system-tray notifier (zero-dep capable)
@@ -80,7 +80,6 @@ nobify/
 cd nobify/server
 npm install
 cp config.example.yaml config.yaml     # optional; defaults are fine
-npm run seed                            # optional demo data
 npm start                               # → http://localhost:8787
 ```
 

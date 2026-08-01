@@ -4,8 +4,8 @@ import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const assetsDir = resolve(__dirname, '..', 'assets');
+const __here = import.meta.url ? dirname(fileURLToPath(import.meta.url)) : dirname(process.execPath);
+const assetsDir = resolve(__here, '..', 'assets');
 
 function iconBase64() {
   const file = process.platform === 'win32' ? 'tray.ico' : 'tray.png';

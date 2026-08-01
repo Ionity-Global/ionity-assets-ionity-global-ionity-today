@@ -30,6 +30,7 @@
   let holdMs = 8000;
   const sensorLast = { wifi: 0, mmwave: 0, fusion: 0 };
   let wasPresent = false;
+  let everSawData = false;   // becomes true once any REAL detection arrives
   let lastNotify = 0;
   let snooze = null;
   let latest = { distance: null, direction: null, speed: null, lux: null, dark: null, rssi: null, source: null, sinceTs: null };
@@ -48,6 +49,7 @@
   // ---- LEDs + orb --------------------------------------------------------
   function noteSource(source, ts) {
     ts = ts || now();
+    everSawData = true;
     if (source === 'fusion') { sensorLast.wifi = ts; sensorLast.mmwave = ts; }
     else if (sensorLast[source] !== undefined) sensorLast[source] = ts;
   }
@@ -64,10 +66,10 @@
     orb.classList.toggle('orb-clear', !present);
     orb.classList.toggle('src-wifi', present && wifiOn && !mmOn);
     orb.classList.toggle('src-both', present && wifiOn && mmOn);
-    $('orb-state').textContent = present ? 'PRESENT' : 'CLEAR';
+    $('orb-state').textContent = present ? 'PRESENT' : (everSawData ? 'CLEAR' : 'WAITING');
     $('orb-sub').textContent = present
       ? (wifiOn && mmOn ? 'mmWave + WiFi' : mmOn ? 'mmWave radar' : 'WiFi CSI')
-      : 'no one detected';
+      : (everSawData ? 'no one detected' : 'waiting for a sensor…');
 
     // Readout
     $('r-distance').textContent = latest.distance != null ? `${Math.round(latest.distance)} cm` : '—';
@@ -78,6 +80,25 @@
     $('r-lastseen').textContent = fmtAgo(latest.sinceTs);
     $('r-source').textContent = latest.source || '—';
     $('r-rssi').textContent = latest.rssi != null ? `${latest.rssi} dBm` : '—';
+
+    // Movement speed indicator + arrival ETA
+    const mm = $('movemeter');
+    const spd = latest.speed != null ? Math.abs(latest.speed) : null;
+    if (present && (spd != null || latest.direction)) {
+      mm.hidden = false;
+      const pct = spd != null ? Math.max(4, Math.min(100, (spd / 200) * 100)) : 0;
+      const fill = $('mm-fill');
+      fill.style.width = pct + '%';
+      fill.className = 'mm-fill ' + (spd == null ? '' : spd < 2 ? 'mm-still' : spd < 150 ? 'mm-walk' : 'mm-fast');
+      $('mm-dir').textContent = latest.direction
+        ? `${dirArrow(latest.direction)} ${latest.direction}${spd != null ? ` · ${Math.round(spd)} cm/s` : ''}`
+        : (spd != null ? `${Math.round(spd)} cm/s` : '—');
+      let eta = '';
+      if (latest.direction === 'approaching' && spd != null && spd >= 2 && latest.distance != null) {
+        eta = `arriving in ~${Math.max(0, latest.distance / spd).toFixed(1)}s`;
+      } else if (latest.direction === 'leaving') { eta = 'moving away'; }
+      $('mm-eta').textContent = eta;
+    } else { mm.hidden = true; }
 
     // Day/night chip
     const dn = $('daynight');

@@ -9,6 +9,16 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#0a0e1a" />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .movemeter{margin:10px 0 2px;padding:10px 12px;border:1px solid #22314f;border-radius:10px;background:#0a1120}
+    .movemeter[hidden]{display:none}
+    .mm-head{display:flex;justify-content:space-between;align-items:baseline;font-size:.9rem;margin-bottom:6px}
+    .mm-eta{color:var(--accent,#39d98a);font-weight:700}
+    .mm-bar{height:10px;border-radius:99px;background:#132038;overflow:hidden}
+    .mm-fill{height:100%;width:0;border-radius:99px;transition:width .35s ease,background .35s ease;background:#39d98a}
+    .mm-fill.mm-still{background:#5b6b86}.mm-fill.mm-walk{background:#1e90ff}.mm-fill.mm-fast{background:#ff8c00}
+    .mm-scale{display:flex;justify-content:space-between;font-size:.66rem;color:var(--muted,#7c8aa5);margin-top:3px}
+  </style>
 </head>
 <body data-connection="disconnected">
   <header class="topbar">
@@ -62,6 +72,13 @@
           <div><dt>Source</dt><dd id="r-source">—</dd></div>
           <div><dt>Signal</dt><dd id="r-rssi">—</dd></div>
         </dl>
+        <div class="movemeter" id="movemeter" hidden>
+          <div class="mm-head">
+            <span id="mm-dir">—</span><span id="mm-eta" class="mm-eta"></span>
+          </div>
+          <div class="mm-bar"><div id="mm-fill" class="mm-fill"></div></div>
+          <div class="mm-scale"><span>0</span><span>still</span><span>walk</span><span>fast ›200cm/s</span></div>
+        </div>
         <div class="snooze">
           <span class="snooze-label">Snooze alerts</span>
           <div class="snooze-btns" id="snooze-btns"></div>

@@ -5,7 +5,7 @@ import { join, normalize, extname } from 'node:path';
 import { WebSocketServer } from 'ws';
 import { config } from './config.js';
 import { upsertDevice, insertAlert, listDevices, listAlerts, stats, getSetting, setSetting } from './db.js';
-import { insights, ask, liveState } from './ai.js';
+import { insights, ask, liveState, predict } from './ai.js';
 import { getManifest, binInfo, compareVersions } from './firmware.js';
 import { createReadStream } from 'node:fs';
 
@@ -160,6 +160,8 @@ const server = http.createServer(async (req, res) => {
     if (p === '/api/stats') return sendJson(res, 200, stats(Number(url.searchParams.get('windowMs')) || undefined));
 
     if (p === '/api/ai/insights') return sendJson(res, 200, insights({ windowMs: Number(url.searchParams.get('windowMs')) || undefined }));
+
+    if (p === '/api/ai/predict') return sendJson(res, 200, predict());
 
     if (p === '/api/ai/ask' && req.method === 'POST') {
       const body = await readBody(req);
