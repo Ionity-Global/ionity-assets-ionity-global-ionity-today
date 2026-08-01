@@ -8,7 +8,7 @@
       "chipFamily": "ESP32-S3",
       "parts": [
         {
-          "path": "https://github.com/Ionity-Global/ionity-assets-ionity-global-ionity-today/releases/latest/download/nobify-factory.bin",
+          "path": "firmware/nobify-factory.bin",
           "offset": 0
         }
       ]
