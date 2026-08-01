@@ -21,6 +21,8 @@ flowchart LR
     SRV --> AI["Nobify AI engine<br/>insights · anomalies · Q&A"]
   end
   SRV -->|WebSocket| WEB["Dashboard (GitHub Pages)<br/>orb · feed · charts · notifications · snooze"]
+  SRV -->|WebSocket| COMP["Desktop companion<br/>system-tray notifications · snooze"]
+  SRV -->|"/api/firmware/manifest + .bin"| FW
 ```
 
 ## Highlights
@@ -40,22 +42,34 @@ flowchart LR
 - **Built-in AI** (offline, deterministic): activity summaries, **anomaly
   detection**, sensor-fusion confidence, occupancy/dwell metrics, and a
   natural-language **chat assistant**.
+- **Desktop companion**: a system-tray app that pops **notifications** on
+  detection with distance/direction/day-night, and **snoozes** in sync with the
+  server. Runs with **zero dependencies** (built-in polling + native balloons).
+- **Over-the-air (OTA) updates**: devices self-update from the server
+  (`/api/firmware/manifest`, MD5-verified) plus local ArduinoOTA push.
 - **YAML-driven config**: one `nobify.config.yaml` is the source of truth; a
   generator turns it into the firmware header so the device needs no YAML parser.
+- **CI/CD**: GitHub Actions test the server, syntax-check the apps, **compile the
+  firmware** with PlatformIO, publish the dashboard to Pages, sync the **Wiki**,
+  and cut **Releases** with companion binaries + firmware `.bin`.
 
 ## Repository layout
 
 ```
 nobify/
 ├── firmware/                 ESP32-S3 PlatformIO project
-│   ├── nobify.config.yaml     ← edit device/sensor settings here
+│   ├── nobify.config.yaml     ← edit device/sensor/OTA settings here
 │   ├── include/nobify_config.h  (generated — do not edit)
-│   └── src/  main · mmwave · wifi_csi · leds · display · net
-├── server/                   Node.js backend (http + ws + node:sqlite + AI)
-│   ├── src/  server · db · ai · config
+│   └── src/  main · mmwave · wifi_csi · leds · display · net · ota
+├── server/                   Node.js backend (http + ws + node:sqlite + AI + OTA)
+│   ├── src/  server · db · ai · config · firmware
 │   ├── scripts/ seed · gen-firmware-config
+│   ├── firmware/  OTA binaries + manifest.json (git-ignored)
 │   └── test/ smoke.test.js
-└── webapp/                   Static dashboard (GitHub Pages friendly)
+├── companion/                Desktop system-tray notifier (zero-dep capable)
+│   └── src/  index · config · notify · tray
+├── webapp/                   Static dashboard + Install page (GitHub Pages friendly)
+└── wiki/                     Documentation synced to the GitHub Wiki
 ```
 
 ## Quick start
@@ -82,12 +96,29 @@ cd nobify/server && npm run gen:firmware   # YAML → firmware/include/nobify_co
 cd ../firmware && pio run -t upload && pio device monitor
 ```
 
-### 3) Publish the dashboard (GitHub Pages)
+### 3) Desktop companion (system-tray notifications)
+
+```bash
+cd nobify/companion
+npm install                                 # optional — tray icon + rich toasts
+npm start -- --server http://localhost:8787
+```
+
+Runs with zero deps too (polling + native balloons). Prebuilt binaries are
+attached to each GitHub Release; the dashboard's **⤓ Install** page links them.
+
+### 4) Publish the dashboard (GitHub Pages)
 
 The workflow `.github/workflows/nobify-pages.yml` deploys `nobify/webapp`.
 Enable **Settings → Pages → Source: GitHub Actions**. Since Pages is static,
 point it at your hosted backend via the in-app **⚙ Settings** (stored in the
 browser) or by editing `webapp/config.js`.
+
+### 5) Over-the-air updates
+
+Publish a build to `server/firmware/` (the **Nobify Release** workflow does this
+on a `nobify-v*` tag) and devices self-update from `/api/firmware/manifest`.
+See the Wiki's **Firmware and OTA** page.
 
 ## HTTP / WebSocket API
 
@@ -102,6 +133,8 @@ browser) or by editing `webapp/config.js`.
 | `POST`/`GET` | `/api/ai/ask` | Natural-language question → answer |
 | `GET`/`POST` | `/api/snooze` | Read / set / clear alert snooze |
 | `GET` | `/api/health` | Health check |
+| `GET` | `/api/firmware/manifest?current=<ver>` | OTA: latest build + `updateAvailable` |
+| `GET` | `/firmware/<name>.bin` | OTA: firmware image (MD5-verified) |
 | `WS` | `/ws` | Real-time `alert` / `state` / `snooze` events |
 
 **Ingest payload** (single or batched `events`):
@@ -129,7 +162,9 @@ browser) or by editing `webapp/config.js`.
 - LEDs default to a 2-pixel NeoPixel chain on the WiFi LED GPIO (BLUE, ORANGE);
   set `leds.neopixel: false` for two plain GPIO LEDs.
 
-See `firmware/README.md` and `server/README.md` for details.
+See `firmware/README.md`, `server/README.md` and `companion/README.md` for
+details, and the **[Wiki](../../wiki)** for the full guide (architecture,
+wiring, configuration, OTA, CI/CD, troubleshooting).
 
 ## License
 

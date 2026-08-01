@@ -6,6 +6,13 @@
 #define NB_DEVICE_ID           "esp32-s3-01"
 #define NB_DEVICE_NAME         "Lobby Sensor"
 
+// ---- Firmware + OTA ----
+#define NB_FW_VERSION          "1.0.0"
+#define NB_OTA_ENABLED         1
+#define NB_OTA_CHECK_MS        900000
+#define NB_OTA_ARDUINO         1
+#define NB_OTA_ARDUINO_PASS    ""
+
 // ---- WiFi ----
 #define NB_WIFI_SSID           "YOUR_WIFI_SSID"
 #define NB_WIFI_PASSWORD       "YOUR_WIFI_PASSWORD"

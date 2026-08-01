@@ -12,6 +12,7 @@
 #include "mmwave.h"
 #include "wifi_csi.h"
 #include "net.h"
+#include "ota.h"
 
 static constexpr uint32_t LOCAL_HOLD_MS = 3000;   // LED/display presence hold
 
@@ -34,10 +35,12 @@ void setup() {
 
   Mmwave::begin();
   Net::begin();
+  Ota::begin();
 }
 
 void loop() {
   Net::loop();
+  Ota::loop();
 
   // Start CSI once WiFi is up (needs the driver running).
   if (!csiStarted && Net::connected()) {

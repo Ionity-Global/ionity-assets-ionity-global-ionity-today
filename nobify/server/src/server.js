@@ -6,6 +6,8 @@ import { WebSocketServer } from 'ws';
 import { config } from './config.js';
 import { upsertDevice, insertAlert, listDevices, listAlerts, stats, getSetting, setSetting } from './db.js';
 import { insights, ask, liveState } from './ai.js';
+import { getManifest, binInfo, compareVersions } from './firmware.js';
+import { createReadStream } from 'node:fs';
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -167,6 +169,25 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, ask(url.searchParams.get('q') || ''));
     }
 
+    // ---- OTA firmware manifest (must precede the /api/ catch-all) ----
+    if (p === '/api/firmware/manifest') {
+      if (!config.otaEnabled) return sendJson(res, 404, { error: 'ota disabled' });
+      const m = getManifest();
+      if (!m) return sendJson(res, 200, { available: false });
+      const info = binInfo(m.bin);
+      const proto = (req.headers['x-forwarded-proto']?.split(',')[0]) || 'http';
+      const fwBase = `${proto}://${req.headers.host}`;
+      const current = url.searchParams.get('current') || url.searchParams.get('version');
+      const updateAvailable = current ? compareVersions(m.version, current) > 0 : true;
+      return sendJson(res, 200, {
+        available: true, version: m.version, bin: m.bin,
+        url: `${fwBase}/firmware/${encodeURIComponent(m.bin)}`,
+        size: info?.size ?? null, md5: info?.md5 ?? null,
+        notes: m.notes, mandatory: m.mandatory, ts: m.ts,
+        current: current || null, updateAvailable,
+      });
+    }
+
     if (p === '/api/snooze') {
       if (req.method === 'POST') {
         const body = await readBody(req);
@@ -181,6 +202,23 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (p.startsWith('/api/')) return sendJson(res, 404, { error: 'unknown endpoint', path: p });
+
+    // ---- OTA: firmware binaries ----
+    if (p.startsWith('/firmware/')) {
+      if (!config.otaEnabled) return sendJson(res, 404, { error: 'ota disabled' });
+      const info = binInfo(decodeURIComponent(p.slice('/firmware/'.length)));
+      if (!info) return sendJson(res, 404, { error: 'firmware not found' });
+      res.writeHead(200, {
+        'Content-Type': 'application/octet-stream',
+        'Content-Length': info.size,
+        'Content-MD5': info.md5,
+        'x-MD5': info.md5,
+        'Cache-Control': 'no-cache',
+      });
+      if (req.method === 'HEAD') { res.end(); return; }
+      createReadStream(info.path).pipe(res);
+      return;
+    }
 
     // ---- Static dashboard ----
     return serveStatic(req, res, p);
@@ -205,6 +243,7 @@ server.listen(config.port, config.host, () => {
   console.log(`  ├─ WebSocket: ws://localhost:${config.port}/ws`);
   console.log(`  ├─ Dashboard: ${config.serveWebapp ? `http://localhost:${config.port}/` : 'disabled'}`);
   console.log(`  ├─ Ingest   : POST http://localhost:${config.port}/api/ingest${config.ingestKey ? ' (key required)' : ''}`);
+  console.log(`  ├─ OTA      : ${config.otaEnabled ? `http://localhost:${config.port}/api/firmware/manifest` : 'disabled'}`);
   console.log(`  └─ DB       : ${config.dbPath}\n`);
 });
 

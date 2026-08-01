@@ -8,6 +8,15 @@ device:
   id: esp32-s3-01            # unique id reported to the server
   name: "Lobby Sensor"       # friendly name shown in the dashboard
 
+# Firmware identity + OTA (over-the-air) updates.
+firmware:
+  version: "1.0.0"           # reported to the server; used for OTA update checks
+ota:
+  enabled: true              # pull updates from the server's /api/firmware/manifest
+  check_interval_ms: 900000  # how often to poll for a new build (15 min). 0 = boot only
+  arduino_ota: true          # also allow local push OTA (pio run -t upload --upload-port <ip>)
+  arduino_ota_password: ""   # optional password protecting local ArduinoOTA
+
 wifi:
   ssid: "YOUR_WIFI_SSID"
   password: "YOUR_WIFI_PASSWORD"

@@ -1,0 +1,26 @@
+name: Publish Nobify Wiki
+
+# Mirrors nobify/wiki/ into the repository's GitHub Wiki.
+# One-time setup: enable the Wiki (repo Settings → Features → Wikis) and create
+# the first page in the UI so the wiki git repo exists.
+
+on:
+  push:
+    branches: [main-Ionity, main]
+    paths: ['nobify/wiki/**', '.github/workflows/nobify-wiki.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync wiki
+        uses: Andrew-Chen-Wang/github-wiki-action@v4
+        with:
+          path: nobify/wiki/
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'docs(wiki): sync from nobify/wiki'

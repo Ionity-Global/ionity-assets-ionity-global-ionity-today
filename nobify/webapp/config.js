@@ -10,4 +10,6 @@ window.NOBIFY_CONFIG = {
   pollMs: 4000,
   // Default snooze presets (minutes) shown as buttons.
   snoozePresets: [5, 15, 60],
+  // GitHub repo (owner/name) — powers the Install page download links.
+  repo: 'Ionity-Global/ionity-assets-ionity-global-ionity-today',
 };

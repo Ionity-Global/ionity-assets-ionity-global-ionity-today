@@ -3,7 +3,8 @@
 import assert from 'node:assert';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { rmSync } from 'node:fs';
+import { rmSync, mkdirSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { WebSocket } from 'ws';
 
 const PORT = 8899;
@@ -12,6 +13,16 @@ process.env.PORT = String(PORT);
 process.env.DB_PATH = dbPath;
 process.env.SERVE_WEBAPP = 'false';
 process.env.PRESENCE_HOLD_MS = '8000';
+
+// OTA fixture: a temp firmware dir with a fake bin + manifest.
+const fwDir = join(tmpdir(), `nobify-fw-${Date.now()}`);
+mkdirSync(fwDir, { recursive: true });
+const binName = 'nobify-fw-9.9.9.bin';
+const binBytes = Buffer.from('E9060000abcdef0123456789nobify-test-firmware-payload', 'utf8');
+const binMd5 = createHash('md5').update(binBytes).digest('hex');
+writeFileSync(join(fwDir, binName), binBytes);
+writeFileSync(join(fwDir, 'manifest.json'), JSON.stringify({ version: '9.9.9', bin: binName, notes: 'test build', mandatory: false, ts: Date.now() }));
+process.env.FIRMWARE_DIR = fwDir;
 
 const base = `http://127.0.0.1:${PORT}`;
 let passed = 0;
@@ -101,9 +112,25 @@ async function run() {
   r = await (await fetch(`${base}/api/snooze`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clear: true }) })).json();
   assert.equal(r.snooze, null); ok('snooze cleared');
 
+  // OTA: manifest advertises an update to an older device…
+  r = await (await fetch(`${base}/api/firmware/manifest?current=1.0.0`)).json();
+  assert.equal(r.available, true); assert.equal(r.version, '9.9.9');
+  assert.equal(r.updateAvailable, true); assert.equal(r.md5, binMd5);
+  assert.ok(r.url.endsWith('/firmware/nobify-fw-9.9.9.bin')); ok('ota manifest advertises update');
+
+  // …but not to a device already on the latest version.
+  r = await (await fetch(`${base}/api/firmware/manifest?current=9.9.9`)).json();
+  assert.equal(r.updateAvailable, false); ok('ota manifest: up-to-date device gets no update');
+
+  // OTA: firmware binary downloads intact.
+  const binResp = await fetch(`${base}/firmware/nobify-fw-9.9.9.bin`);
+  assert.equal(binResp.status, 200);
+  const buf = Buffer.from(await binResp.arrayBuffer());
+  assert.equal(createHash('md5').update(buf).digest('hex'), binMd5); ok('ota serves firmware binary');
+
   ws.close();
   console.log(`\n  ${passed} checks passed.\n`);
 }
 
-run().then(() => { setTimeout(() => { try { rmSync(dbPath, { force: true }); rmSync(dbPath + '-wal', { force: true }); rmSync(dbPath + '-shm', { force: true }); } catch {} process.exit(0); }, 150); })
+run().then(() => { setTimeout(() => { try { rmSync(dbPath, { force: true }); rmSync(dbPath + '-wal', { force: true }); rmSync(dbPath + '-shm', { force: true }); rmSync(fwDir, { recursive: true, force: true }); } catch {} process.exit(0); }, 150); })
   .catch((e) => { console.error('\n  TEST FAILED:', e.message); setTimeout(() => process.exit(1), 150); });

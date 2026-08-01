@@ -57,5 +57,8 @@ export const config = {
   historyLimit: pickNum('HISTORY_LIMIT', ys.history_limit, 5000),
   corsOrigin: pick('CORS_ORIGIN', ys.cors_origin, '*'),
   darkLuxThreshold: pickNum('DARK_LUX', yn.dark_lux_threshold, 5),
+  // Over-the-air firmware: directory that holds *.bin + optional manifest.json.
+  firmwareDir: resolve(pick('FIRMWARE_DIR', ys.firmware_dir, join(rootDir, 'firmware'))),
+  otaEnabled: pickBool('OTA_ENABLED', ys.ota_enabled, true),
 };
 

@@ -25,7 +25,7 @@ namespace {
   void addCommon(JsonDocument& doc, float lux) {
     doc["device_id"] = NB_DEVICE_ID;
     doc["name"]      = NB_DEVICE_NAME;
-    doc["firmware"]  = "nobify-fw/1.0.0";
+    doc["firmware"]  = "nobify-fw/" NB_FW_VERSION;
     doc["rssi"]      = WiFi.RSSI();
     if (!isnan(lux)) doc["lux"] = lux;
   }

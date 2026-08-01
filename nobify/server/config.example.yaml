@@ -12,6 +12,9 @@ server:
   cors_origin: "*"
   # SQLite database path (node:sqlite, no native deps).
   db_path: ""            # blank = ./data/nobify.db
+  # Over-the-air firmware updates: directory holding built *.bin + manifest.json.
+  ota_enabled: true
+  firmware_dir: ""       # blank = ./firmware (server/firmware)
 
 sensor:
   # How long a person stays "present" after the last detection (ms).
