@@ -55,7 +55,7 @@
 #define NB_LED_NEOPIXEL        1
 
 // ---- Display ----
-#define NB_DISPLAY_ENABLED     1
+#define NB_DISPLAY_ENABLED     0
 #define NB_DISPLAY_WIDTH       240
 #define NB_DISPLAY_HEIGHT      320
 #define NB_DISPLAY_ROTATION    1

@@ -75,9 +75,12 @@ leds:
   brightness: 160            # 0..255 (WS2812/NeoPixel) 
   neopixel: true             # true = addressable RGB, false = plain GPIO LEDs
 
-# On-board TFT screen (optional; disable if your S3 has no screen).
+# On-board TFT screen (optional). Disabled by default: this generic N16R8
+# board's screen controller/wiring is unverified, and a mis-wired TFT_eSPI
+# panel panics at boot (StoreProhibited) and crash-loops the whole node. Set
+# enabled: true only after confirming your panel driver + SPI pins (platformio.ini).
 display:
-  enabled: true
+  enabled: false
   type: st7789               # st7789 | ili9341 | none
   width: 240
   height: 320

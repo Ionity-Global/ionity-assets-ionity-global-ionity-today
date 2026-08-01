@@ -22,7 +22,7 @@ static uint32_t lastMmPresentMs = 0;
 static bool     csiStarted = false;
 
 static bool     prevMmPresent = false, prevWifiPresent = false;
-static uint32_t lastPostMs = 0, lastHeartbeatMs = 0;
+static uint32_t lastPostMs = 0, lastHeartbeatMs = 0, lastLogMs = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -65,9 +65,26 @@ void loop() {
   bool wifiPresent = csiStarted ? WifiCsi::present() : false;
 
   // ---- Local indicators ----
+  // Health: ORANGE (all in order) once the device is online and the radar is
+  // producing data; RED while offline or the sensor is faulted.
+  bool sensorOk = Mmwave::calibrating() || lastMmPresentMs != 0 || !isnan(lux) || lastMm.valid;
+  Leds::setHealthy(Net::connected() && sensorOk);
   Leds::update(wifiPresent, mmPresent);
+  Leds::tick();
   Display::render(mmPresent, wifiPresent, lastMm, lux,
                   Net::connected(), Net::rssi(), Net::ip(), Mmwave::calibrating());
+
+  // ---- Periodic heartbeat log (proves the node is alive over serial) ----
+  if (millis() - lastLogMs >= 2000) {
+    lastLogMs = millis();
+    Serial.printf("[nobify] up=%lus wifi=%s ip=%s mmWave=%s csi=%s dist=%.0fcm lux=%.0f\n",
+                  millis() / 1000UL,
+                  Net::connected() ? "connected" : "down",
+                  Net::ip(),
+                  mmPresent ? "PRESENT" : "clear",
+                  wifiPresent ? "PRESENT" : "clear",
+                  lastMm.distanceCm, lux);
+  }
 
   // ---- Upload to server ----
   uint32_t nowMs = millis();
