@@ -44,8 +44,8 @@ h2 { font-size: 1.02rem; }
 .tagline { margin: 0; font-size: 0.72rem; color: var(--muted); }
 .brand-mark {
   width: 34px; height: 34px; border-radius: 10px;
-  background: #0a0e1a url("assets/nobify-mark.svg") center/cover no-repeat;
-  box-shadow: 0 0 18px rgba(18, 214, 166, 0.5); position: relative;
+  background: #fff url("assets/icon-192.png") center/cover no-repeat;
+  box-shadow: 0 0 16px rgba(43, 111, 214, 0.45); position: relative;
 }
 .topbar-right { display: flex; align-items: center; gap: 10px; }
 
