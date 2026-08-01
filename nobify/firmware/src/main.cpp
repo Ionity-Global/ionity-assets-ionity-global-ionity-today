@@ -11,6 +11,7 @@
 #include "display.h"
 #include "mmwave.h"
 #include "wifi_csi.h"
+#include "provision.h"
 #include "net.h"
 #include "ota.h"
 
@@ -34,11 +35,13 @@ void setup() {
   Display::banner("Starting", NB_DEVICE_NAME);
 
   Mmwave::begin();
+  Provision::begin();
   Net::begin();
   Ota::begin();
 }
 
 void loop() {
+  Provision::loop();
   Net::loop();
   Ota::loop();
 

@@ -1,5 +1,6 @@
 #include "ota.h"
 #include "nobify_config.h"
+#include "provision.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
@@ -37,7 +38,7 @@ bool Ota::checkNow() {
   if (WiFi.status() != WL_CONNECTED) return false;
 
   HTTPClient http;
-  String url = String(NB_SERVER_URL) + "/api/firmware/manifest?current=" + NB_FW_VERSION;
+  String url = String(Provision::serverUrl()) + "/api/firmware/manifest?current=" + NB_FW_VERSION;
   if (!http.begin(url)) return false;
   http.setTimeout(6000);
   int code = http.GET();

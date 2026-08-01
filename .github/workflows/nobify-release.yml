@@ -68,6 +68,27 @@ jobs:
           path: nobify/companion/dist/${{ matrix.artifact }}
           if-no-files-found: error
 
+  # ---- Single-file server bundle (download & run, no npm install) -------------
+  server:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build single-file server
+        working-directory: nobify/server
+        run: |
+          npm install --no-audit --no-fund
+          npm run build:bundle
+      - name: Upload server artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: server
+          path: nobify/server/dist/nobify-server.mjs
+          if-no-files-found: error
+
   # ---- Firmware image + factory (web-flasher) image + OTA manifests -----------
   firmware:
     needs: version
@@ -134,7 +155,7 @@ jobs:
 
   # ---- Gather everything + publish the Release --------------------------------
   release:
-    needs: [version, companion, firmware]
+    needs: [version, companion, server, firmware]
     runs-on: ubuntu-latest
     env:
       VER: ${{ needs.version.outputs.version }}
@@ -158,6 +179,7 @@ jobs:
             dist/nobify-companion-win.exe
             dist/nobify-companion-macos
             dist/nobify-companion-linux
+            dist/nobify-server.mjs
             dist/nobify-factory.bin
             dist/nobify-fw-${{ env.VER }}.bin
             dist/manifest.json

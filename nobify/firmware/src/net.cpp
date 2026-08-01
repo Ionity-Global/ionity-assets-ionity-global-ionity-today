@@ -1,17 +1,17 @@
 #include "net.h"
 #include "nobify_config.h"
+#include "provision.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
 namespace {
-  uint32_t lastAttempt = 0;
   bool wasConnected = false;
 
   bool postJson(const String& body) {
     if (WiFi.status() != WL_CONNECTED) return false;
     HTTPClient http;
-    String url = String(NB_SERVER_URL) + NB_INGEST_PATH;
+    String url = String(Provision::serverUrl()) + NB_INGEST_PATH;
     if (!http.begin(url)) return false;
     http.setTimeout(4000);
     http.addHeader("Content-Type", "application/json");
@@ -32,28 +32,21 @@ namespace {
 }
 
 void Net::begin() {
-  WiFi.mode(WIFI_STA);
-  WiFi.setHostname(NB_WIFI_HOSTNAME);
-  WiFi.begin(NB_WIFI_SSID, NB_WIFI_PASSWORD);
-  lastAttempt = millis();
-  Serial.printf("[net] connecting to \"%s\"...\n", NB_WIFI_SSID);
+  // WiFi is owned by Provision (Improv + NVS creds); nothing to do here beyond
+  // logging the first successful association in loop().
+  Serial.println("[net] ready (WiFi managed by provisioning)");
 }
 
 void Net::loop() {
   if (WiFi.status() == WL_CONNECTED) {
     if (!wasConnected) {
       wasConnected = true;
-      Serial.printf("[net] connected, ip=%s rssi=%d\n", WiFi.localIP().toString().c_str(), WiFi.RSSI());
+      Serial.printf("[net] connected, ip=%s rssi=%d server=%s\n",
+                    WiFi.localIP().toString().c_str(), WiFi.RSSI(), Provision::serverUrl());
     }
     return;
   }
   wasConnected = false;
-  if (millis() - lastAttempt > 5000) {   // retry every 5s
-    lastAttempt = millis();
-    WiFi.disconnect();
-    WiFi.begin(NB_WIFI_SSID, NB_WIFI_PASSWORD);
-    Serial.println("[net] retrying WiFi...");
-  }
 }
 
 bool Net::connected() { return WiFi.status() == WL_CONNECTED; }

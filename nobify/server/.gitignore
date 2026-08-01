@@ -1,4 +1,5 @@
 node_modules/
+dist/
 data/
 firmware/*.bin
 firmware/manifest.json
