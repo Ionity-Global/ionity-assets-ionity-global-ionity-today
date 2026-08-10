@@ -162,7 +162,7 @@ See the Wiki's **Firmware and OTA** page.
   set `leds.neopixel: false` for two plain GPIO LEDs.
 
 See `firmware/README.md`, `server/README.md` and `companion/README.md` for
-details, and the **[Wiki](../../wiki)** for the full guide (architecture,
+details, and the **[Wiki](./wiki)** for the full guide (architecture,
 wiring, configuration, OTA, CI/CD, troubleshooting).
 
 ## License
